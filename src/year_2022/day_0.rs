@@ -11,21 +11,21 @@ pub enum Cmd {
     Down(i32),
 }
 
-impl FromStr for Cmd {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut input = s.split_whitespace();
-        let dir = input.next().unwrap();
-        let count = input.next().unwrap().parse().unwrap();
-        match dir {
-            "forward" => Ok(Cmd::Forward(count)),
-            "up" => Ok(Cmd::Up(-count)),
-            "down" => Ok(Cmd::Down(-count)),
-            _ => Err("ouch".to_owned()),
-        }
-    }
-}
+// impl FromStr for Cmd {
+//     type Err = String;
+//
+//     fn from_str(s: &str) -> Result<Self, Self::Err> {
+//         let mut input = s.split_whitespace();
+//         let dir = input.next().unwrap();
+//         let count = input.next().unwrap().parse().unwrap();
+//         match dir {
+//             "forward" => Ok(Cmd::Forward(count)),
+//             "up" => Ok(Cmd::Up(-count)),
+//             "down" => Ok(Cmd::Down(-count)),
+//             _ => Err("ouch".to_owned()),
+//         }
+//     }
+// }
 
 pub fn example_parser() -> impl Parser<char, Vec<Cmd>, Error = Simple<char>> {
     let int = text::int(10).map(|s: String| s.parse().unwrap());

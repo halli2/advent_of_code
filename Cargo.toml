@@ -1,0 +1,8 @@
+[package]
+name = "advent_of_code"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chumsky = "0.8.0"
+rayon = "1.6.0"

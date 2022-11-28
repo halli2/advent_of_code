@@ -1,6 +1,3 @@
-#![feature(iter_array_chunks)]
-#![feature(iter_collect_into)]
-
 mod error;
 pub mod gpu;
 pub mod parser;

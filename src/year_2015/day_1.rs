@@ -1,9 +1,9 @@
-use crate::AdventSolver;
+use crate::{AdventSolver, Solution};
 
 pub struct DayOne {}
 
 impl AdventSolver for DayOne {
-    fn part_one(&self, input: &str) -> String {
+    fn part_one(&self, input: &str) -> Solution {
         let mut res = 0;
         for c in input.chars() {
             match c {
@@ -12,10 +12,10 @@ impl AdventSolver for DayOne {
                 _ => {}
             }
         }
-        res.to_string()
+        res.into()
     }
 
-    fn part_two(&self, input: &str) -> String {
+    fn part_two(&self, input: &str) -> Solution {
         let mut res = 0;
         for (index, c) in input.chars().enumerate() {
             match c {
@@ -24,9 +24,9 @@ impl AdventSolver for DayOne {
                 _ => {}
             }
             if res == -1 {
-                return (index + 1).to_string();
+                return (index + 1).into();
             }
         }
-        "Does not enter basement".to_string()
+        Solution::Unsolved
     }
 }

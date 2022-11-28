@@ -1,9 +1,9 @@
-use crate::AdventSolver;
+use crate::{AdventSolver, Solution};
 
 pub struct DayTwo {}
 
 impl AdventSolver for DayTwo {
-    fn part_one(&self, input: &str) -> String {
+    fn part_one(&self, input: &str) -> Solution {
         let res = input
             .lines()
             .map(|l| {
@@ -15,10 +15,10 @@ impl AdventSolver for DayTwo {
                 2 * (x * y + y * z + x * z) + slack
             })
             .sum::<i32>();
-        res.to_string()
+        res.into()
     }
 
-    fn part_two(&self, input: &str) -> String {
+    fn part_two(&self, input: &str) -> Solution {
         let res = input
             .lines()
             .map(|l| {
@@ -31,6 +31,6 @@ impl AdventSolver for DayTwo {
                 perimeter + ribbon
             })
             .sum::<i32>();
-        res.to_string()
+        res.into()
     }
 }

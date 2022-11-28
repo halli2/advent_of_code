@@ -1,4 +1,4 @@
-use crate::AdventSolver;
+use crate::{AdventSolver, Solution};
 use chumsky::prelude::*;
 use rayon::prelude::*;
 
@@ -44,7 +44,7 @@ pub fn example_parser() -> impl Parser<char, Vec<Cmd>, Error = Simple<char>> {
 pub struct DayZero {}
 
 impl AdventSolver for DayZero {
-    fn part_one(&self, input: &str) -> String {
+    fn part_one(&self, input: &str) -> Solution {
         match example_parser().parse(input) {
             Ok(commands) => {
                 let (forw, up) = commands
@@ -58,14 +58,18 @@ impl AdventSolver for DayZero {
                         },
                     )
                     .reduce(|| (0, 0), |a, b| (a.0 + b.0, a.1 + b.1));
-                (forw * up).to_string()
+                (forw * up).into()
             }
-            Err(parse_err) => parse_err.into_iter().map(|c| c.to_string()).collect(),
+            Err(parse_err) => parse_err
+                .into_iter()
+                .map(|c| c.to_string())
+                .collect::<String>()
+                .into(),
         }
     }
 
     /// Example without tools
-    fn part_two(&self, input: &str) -> String {
+    fn part_two(&self, input: &str) -> Solution {
         let (forw, depth) = input.lines().map(|l| l.split_once(" ").unwrap()).fold(
             (0, 0),
             |(forw, depth), (dir, count)| match (dir, count.parse::<i32>().unwrap_or(0)) {
@@ -75,6 +79,6 @@ impl AdventSolver for DayZero {
                 _ => panic!(),
             },
         );
-        (forw * depth).to_string()
+        (forw * depth).into()
     }
 }

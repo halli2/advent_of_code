@@ -17,7 +17,6 @@ part: <int>
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    let start_time = Instant::now();
     let args: Vec<String> = env::args().collect();
     let (day, part, year) = match args.len() {
         3 | 4 => {
@@ -59,6 +58,7 @@ fn main() -> color_eyre::Result<()> {
         _ => unimplemented!("Year {year} not done"),
     };
 
+    let start_time = Instant::now();
     let solved = match part {
         1 => Some(solver.part_one(&content)),
         2 => Some(solver.part_two(&content)),
@@ -73,8 +73,8 @@ fn main() -> color_eyre::Result<()> {
     };
     if let Some(solved) = solved {
         println!(
-            "Solved day {day} - part {part} in {:?}\n",
-            (start_time - Instant::now()).as_nanos()
+            "Solved day {day} - part {part} in {:.4} ms",
+            start_time.elapsed().as_nanos() as f64 / 1_000_000.0
         );
         println!("Answer:\n{solved}");
     }

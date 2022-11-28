@@ -5,7 +5,7 @@ use wgpu::util::DeviceExt;
 
 use crate::{
     gpu::{cast_bytes, Viewer},
-    AdventSolver,
+    AdventSolver, Solution,
 };
 
 pub struct DayThree {}
@@ -96,22 +96,22 @@ fn eval_2(ast: &[Instr]) -> i32 {
 }
 
 impl AdventSolver for DayThree {
-    fn part_one(&self, input: &str) -> String {
+    fn part_one(&self, input: &str) -> Solution {
         match parser().parse(input.trim()) {
-            Ok(ast) => eval(&ast).to_string(),
+            Ok(ast) => eval(&ast).into(),
             Err(errs) => {
                 errs.into_iter().for_each(|e| println!("{:?}", e));
-                "Error".to_string()
+                Solution::Unsolved
             }
         }
     }
 
-    fn part_two(&self, input: &str) -> String {
+    fn part_two(&self, input: &str) -> Solution {
         match parser().parse(input.trim()) {
-            Ok(ast) => eval_2(&ast).to_string(),
+            Ok(ast) => eval_2(&ast).into(),
             Err(errs) => {
                 errs.into_iter().for_each(|e| println!("{:?}", e));
-                "Error".to_string()
+                Solution::Unsolved
             }
         }
     }

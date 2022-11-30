@@ -18,43 +18,25 @@ part: <int>
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
     let args: Vec<String> = env::args().collect();
-    let (day, part, year) = match args.len() {
-        3 | 4 => {
-            let day_raw = &args[1];
-            let part_raw = &args[2];
-            let day: u32 = day_raw.parse()?;
-            let part: u32 = part_raw.parse()?;
-            let year = match args.get(3) {
-                Some(v) => v.parse()?,
-                None => CURRENT_YEAR,
-            };
-            Ok((day, part, year))
-        }
-        _ => {
-            help();
-            Err(eyre!("Wrong number of arguments"))
-        }
+    let (day, part, year) = if let 3 | 4 = args.len() {
+        let day_raw = &args[1];
+        let part_raw = &args[2];
+        let day: u32 = day_raw.parse()?;
+        let part: u32 = part_raw.parse()?;
+        let year = match args.get(3) {
+            Some(v) => v.parse()?,
+            None => CURRENT_YEAR,
+        };
+        Ok((day, part, year))
+    } else {
+        help();
+        Err(eyre!("Wrong number of arguments"))
     }?;
 
     let content = fs::read_to_string(format!("./data/{}/day{:0>2}.txt", year, day))?;
     let solver: Box<dyn AdventSolver> = match year {
-        2015 => {
-            use year_2015::*;
-            match day {
-                1 => Box::new(DayOne {}),
-                2 => Box::new(DayTwo {}),
-                3 => Box::new(DayThree {}),
-                _ => unimplemented!("Day {day} is unimplemented"),
-            }
-        }
-        2022 => {
-            use year_2022::*;
-            match day {
-                0 => Box::new(DayZero {}),
-                2 => Box::new(DayTwo {}),
-                _ => unimplemented!("Day {day} is unimplemented"),
-            }
-        }
+        2015 => year_2015::get_day(day),
+        2022 => year_2022::get_day(day),
         _ => unimplemented!("Year {year} not done"),
     };
 

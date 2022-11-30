@@ -71,7 +71,7 @@ fn eval_2(ast: &[Instr]) -> i32 {
     let mut robot = House { north: 0, east: 0 };
     houses.insert(santa);
     let mut count = 1;
-    for (index, symbol) in ast.into_iter().enumerate() {
+    for (index, symbol) in ast.iter().enumerate() {
         let (n, e) = match symbol {
             North => (1, 0),
             East => (0, 1),
@@ -117,7 +117,8 @@ impl AdventSolver for DayThree {
     }
 
     fn visualize(&self, input: &str) {
-        let viewer = Viewer::new((200, 200)).unwrap();
+        let viewer = pollster::block_on(Viewer::new((200, 200))).unwrap();
+
         let device = &viewer.ctx.device;
 
         let inp = input.trim().chars().collect::<Vec<_>>();

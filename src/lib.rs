@@ -2,23 +2,37 @@ mod error;
 pub mod gpu;
 pub mod parser;
 
+macro_rules! day {
+    ($($index:literal::$day:ident::$struct:ident), +) => {
+        $(pub mod $day;
+        pub use $day::$struct;)*
+
+        use crate::AdventSolver;
+        pub fn get_day(day: u32) -> Box<dyn AdventSolver> {
+            match day {
+                $($index => Box::new($struct {}),)*
+                _ => unimplemented!("Day {day} is unimplemented")
+            }
+        }
+    }
+}
+
 pub mod year_2015 {
     //! Warm up for 2022
-
-    pub mod day_1;
-    pub use day_1::DayOne;
-    pub mod day_2;
-    pub use day_2::DayTwo;
-    pub mod day_3;
-    pub use day_3::DayThree;
+    day! {
+        1::day01::DayOne,
+        2::day02::DayTwo,
+        3::day03::DayThree,
+        4::day04::DayFour
+    }
 }
 
 pub mod year_2022 {
-    pub mod day_0;
-    pub mod day_2;
-
-    pub use day_0::DayZero;
-    pub use day_2::DayTwo;
+    day! {
+        0::day00::DayZero,
+        1::day01::DayOne,
+        2::day02::DayTwo
+    }
 }
 
 pub trait AdventSolver {

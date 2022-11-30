@@ -131,13 +131,13 @@ pub struct Viewer {
 }
 
 impl<'a> Viewer {
-    pub fn new(texture_size: (u32, u32)) -> color_eyre::Result<Self> {
+    pub async fn new(texture_size: (u32, u32)) -> color_eyre::Result<Self> {
         let event_loop = winit::event_loop::EventLoop::new();
         let window = winit::window::WindowBuilder::new()
             .with_inner_size(winit::dpi::PhysicalSize::new(1080, 1080))
             .build(&event_loop)?;
 
-        let ctx = pollster::block_on(GpuContext::new(Some(&window))).unwrap();
+        let ctx = GpuContext::new(Some(&window)).await.unwrap();
 
         let surface = ctx.surface.as_ref().unwrap();
         let swapchain_format = surface.get_supported_formats(&ctx.adapter)[0];

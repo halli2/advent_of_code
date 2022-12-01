@@ -1,3 +1,6 @@
+#![feature(test)]
+extern crate test;
+
 mod error;
 pub mod gpu;
 pub mod parser;
@@ -43,6 +46,7 @@ pub trait AdventSolver {
 
 pub enum Solution {
     I32(i32),
+    U16(u16),
     U32(u32),
     VecU32(Vec<u32>),
     Usize(usize),
@@ -54,6 +58,7 @@ impl std::fmt::Display for Solution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Solution::I32(v) => v.fmt(f),
+            Solution::U16(v) => v.fmt(f),
             Solution::U32(v) => v.fmt(f),
             Solution::VecU32(v) => {
                 for v in v {
@@ -68,32 +73,23 @@ impl std::fmt::Display for Solution {
     }
 }
 
-impl From<usize> for Solution {
-    fn from(value: usize) -> Self {
-        Self::Usize(value)
-    }
+macro_rules! from {
+    ($from:ident, $to:ident) => {
+        impl From<$from> for Solution {
+            fn from(value: $from) -> Self {
+                Self::$to(value)
+            }
+        }
+    };
 }
-
-impl From<i32> for Solution {
-    fn from(value: i32) -> Self {
-        Self::I32(value)
-    }
-}
-
-impl From<u32> for Solution {
-    fn from(value: u32) -> Self {
-        Self::U32(value)
-    }
-}
+from! {usize, Usize}
+from! {i32, I32}
+from! {u16, U16}
+from! {u32, U32}
+from! {String, String}
 
 impl From<Vec<u32>> for Solution {
     fn from(v: Vec<u32>) -> Self {
         Self::VecU32(v)
-    }
-}
-
-impl From<String> for Solution {
-    fn from(value: String) -> Self {
-        Self::String(value)
     }
 }

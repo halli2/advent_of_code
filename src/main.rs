@@ -53,11 +53,9 @@ fn main() -> color_eyre::Result<()> {
             None
         }
     };
+    let elapsed = start_time.elapsed().as_nanos() as f64 / 1_000.0;
     if let Some(solved) = solved {
-        println!(
-            "Solved day {day} - part {part} in {:.4} ms",
-            start_time.elapsed().as_nanos() as f64 / 1_000_000.0
-        );
+        println!("Solved day {day} - part {part} in {:.2} µs", elapsed);
         println!("Answer:\n{solved}");
     }
 

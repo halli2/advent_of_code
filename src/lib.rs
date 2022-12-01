@@ -1,3 +1,4 @@
+#![feature(decl_macro)]
 #![feature(test)]
 extern crate test;
 
@@ -5,10 +6,43 @@ mod error;
 pub mod gpu;
 pub mod parser;
 
+#[cfg(test)]
+pub macro bench($year:literal, $day:tt, $struct:ident, $year_mod:ident) {
+    mod tests {
+        use std::fs;
+        use test::{black_box, Bencher};
+
+        use crate::AdventSolver;
+
+        use crate::$year_mod::$struct;
+
+        #[bench]
+        fn part1(b: &mut Bencher) {
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                black_box(day.part_one(black_box(&content)));
+            })
+        }
+
+        #[bench]
+        fn part2(b: &mut Bencher) {
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                black_box(day.part_two(black_box(&content)));
+            })
+        }
+    }
+}
+
 macro_rules! day {
     ($($index:literal::$day:ident::$struct:ident), +) => {
         $(pub mod $day;
         pub use $day::$struct;)*
+
 
         use crate::AdventSolver;
         pub fn get_day(day: u32) -> Box<dyn AdventSolver> {

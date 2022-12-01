@@ -1,3 +1,6 @@
+#[cfg(test)]
+use crate::bench;
+
 use crate::{AdventSolver, Solution};
 pub struct DayOne {}
 
@@ -49,29 +52,4 @@ impl AdventSolver for DayOne {
 }
 
 #[cfg(test)]
-mod tests {
-    use std::fs;
-    use test::{black_box, Bencher};
-
-    use crate::AdventSolver;
-
-    use super::DayOne;
-
-    #[bench]
-    fn part1(b: &mut Bencher) {
-        let content = fs::read_to_string("./data/2022/day01.txt").unwrap();
-        let day = DayOne {};
-        b.iter(|| {
-            black_box(day.part_one(black_box(&content)));
-        })
-    }
-
-    #[bench]
-    fn part2(b: &mut Bencher) {
-        let content = fs::read_to_string("./data/2022/day01.txt").unwrap();
-        let day = DayOne {};
-        b.iter(|| {
-            black_box(day.part_two(black_box(&content)));
-        })
-    }
-}
+bench! {2022, 1, DayOne, year_2022}

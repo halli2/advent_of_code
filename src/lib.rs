@@ -43,6 +43,8 @@ pub trait AdventSolver {
 
 pub enum Solution {
     I32(i32),
+    U32(u32),
+    VecU32(Vec<u32>),
     Usize(usize),
     String(String),
     Unsolved,
@@ -52,6 +54,13 @@ impl std::fmt::Display for Solution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Solution::I32(v) => v.fmt(f),
+            Solution::U32(v) => v.fmt(f),
+            Solution::VecU32(v) => {
+                for v in v {
+                    write!(f, "{v} ")?
+                }
+                Ok(())
+            }
             Solution::Usize(v) => v.fmt(f),
             Solution::String(v) => v.fmt(f),
             Solution::Unsolved => write!(f, "Something wrong happened, problem not solved"),
@@ -68,6 +77,18 @@ impl From<usize> for Solution {
 impl From<i32> for Solution {
     fn from(value: i32) -> Self {
         Self::I32(value)
+    }
+}
+
+impl From<u32> for Solution {
+    fn from(value: u32) -> Self {
+        Self::U32(value)
+    }
+}
+
+impl From<Vec<u32>> for Solution {
+    fn from(v: Vec<u32>) -> Self {
+        Self::VecU32(v)
     }
 }
 

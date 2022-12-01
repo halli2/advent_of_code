@@ -6,16 +6,13 @@ impl AdventSolver for DayOne {
         let mut highest = 0;
         let mut counter = 0;
         for line in input.lines() {
-            match line.parse::<u32>() {
-                Ok(v) => {
-                    counter += v;
+            if let Ok(v) = line.parse::<u32>() {
+                counter += v;
+            } else {
+                if counter > highest {
+                    highest = counter;
                 }
-                Err(_) => {
-                    if counter > highest {
-                        highest = counter;
-                    }
-                    counter = 0;
-                }
+                counter = 0;
             }
         }
         if counter > highest {
@@ -28,19 +25,17 @@ impl AdventSolver for DayOne {
         let mut cals = [0_u32; 3];
         let mut counter = 0;
         for line in input.lines() {
-            match line.parse::<u32>() {
-                Ok(v) => {
-                    counter += v;
-                }
-                Err(_) => {
-                    let smallest = cals.iter().min().unwrap();
+            if let Ok(v) = line.parse::<u32>() {
+                counter += v;
+            } else {
+                if let Some(smallest) = cals.iter().min() {
                     if counter > *smallest {
                         if let Some(index) = cals.iter().position(|x| smallest == x) {
                             cals[index] = counter;
                         };
                     }
-                    counter = 0;
                 }
+                counter = 0;
             }
         }
         let smallest = cals.iter().min().unwrap();
@@ -51,8 +46,6 @@ impl AdventSolver for DayOne {
         }
         cals.iter().sum::<u32>().into()
     }
-
-    fn visualize(&self, _input: &str) {}
 }
 
 #[cfg(test)]
@@ -69,7 +62,7 @@ mod tests {
         let content = fs::read_to_string("./data/2022/day01.txt").unwrap();
         let day = DayOne {};
         b.iter(|| {
-            black_box(day.part_one(&content));
+            black_box(day.part_one(black_box(&content)));
         })
     }
 
@@ -78,7 +71,7 @@ mod tests {
         let content = fs::read_to_string("./data/2022/day01.txt").unwrap();
         let day = DayOne {};
         b.iter(|| {
-            black_box(day.part_two(&content));
+            black_box(day.part_two(black_box(&content)));
         })
     }
 }

@@ -1,4 +1,7 @@
+use core::slice;
 use std::borrow::Cow;
+
+use ash::vk;
 
 pub struct GpuContext {
     pub adapter: wgpu::Adapter,
@@ -65,9 +68,6 @@ impl GpuContext {
             .await
             .unwrap();
 
-        let info = adapter.get_info();
-        dbg!(&info);
-
         Some(GpuContext {
             adapter,
             device,
@@ -77,9 +77,9 @@ impl GpuContext {
         })
     }
 
-    pub fn compute_pipeline<'a>(
+    pub fn compute_pipeline(
         &self,
-        shader_code: Cow<'a, str>,
+        shader_code: Cow<'_, str>,
         bindgroup_entries: &[wgpu::BindGroupEntry],
     ) -> ComputePipeline {
         let shader = self
@@ -416,5 +416,110 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
             t.push(result[i]);
             assert_eq!(result[i], inp + 2);
         }
+    }
+}
+
+pub struct Gpu {
+    pub device: ash::Device,
+    pub queue: vk::Queue,
+    pub family: u32,
+    pub command_pool: vk::CommandPool,
+    pub command_buffer: vk::CommandBuffer,
+    pub timeline_semaphore: vk::Semaphore,
+
+    pub instance: ash::Instance,
+    pub entry: ash::Entry,
+}
+
+impl Drop for Gpu {
+    fn drop(&mut self) {
+        unsafe {
+            let device = &self.device;
+            device
+                .reset_command_pool(self.command_pool, vk::CommandPoolResetFlags::empty())
+                .unwrap();
+            device.destroy_semaphore(self.timeline_semaphore, None);
+            device.destroy_command_pool(self.command_pool, None);
+            device.destroy_device(None);
+            self.instance.destroy_instance(None);
+        }
+    }
+}
+
+impl Gpu {
+    #[allow(clippy::missing_safety_doc)]
+    pub unsafe fn new() -> color_eyre::Result<Self> {
+        let entry = ash::Entry::load()?;
+        let instance = entry.create_instance(
+            &vk::InstanceCreateInfo::builder()
+                .application_info(&vk::ApplicationInfo::builder().api_version(vk::API_VERSION_1_3)),
+            None,
+        )?;
+
+        let physical_device = instance.enumerate_physical_devices()?[0]; // Pray the first is the right :p
+        let queue_properties =
+            instance.get_physical_device_queue_family_properties(physical_device);
+        let (family, _queue_props) = queue_properties
+            .iter()
+            .filter(|f| f.queue_count > 0)
+            .enumerate()
+            .find(|(_, family)| {
+                family
+                    .queue_flags
+                    .contains(vk::QueueFlags::GRAPHICS & vk::QueueFlags::COMPUTE)
+            })
+            .unwrap();
+        let family = family as u32;
+
+        let mut features_vk_1_2 =
+            vk::PhysicalDeviceVulkan12Features::builder().timeline_semaphore(true);
+        let mut features_vk_1_3 = vk::PhysicalDeviceVulkan13Features::builder()
+            .synchronization2(true)
+            .dynamic_rendering(true);
+
+        let mut device_features = vk::PhysicalDeviceFeatures2::builder()
+            .push_next(&mut features_vk_1_2)
+            .push_next(&mut features_vk_1_3);
+        let queue_info = vk::DeviceQueueCreateInfo::builder()
+            .queue_family_index(family)
+            .queue_priorities(&[1.0]);
+
+        let device = instance.create_device(
+            physical_device,
+            &vk::DeviceCreateInfo::builder()
+                .queue_create_infos(slice::from_ref(&queue_info))
+                .push_next(&mut device_features),
+            None,
+        )?;
+        let queue = device.get_device_queue(family, 0);
+        let command_pool = device.create_command_pool(
+            &vk::CommandPoolCreateInfo::builder().queue_family_index(family),
+            None,
+        )?;
+        let command_buffer = device.allocate_command_buffers(
+            &vk::CommandBufferAllocateInfo::builder()
+                .command_buffer_count(1)
+                .command_pool(command_pool)
+                .level(vk::CommandBufferLevel::PRIMARY),
+        )?[0];
+        let timeline_semaphore = device.create_semaphore(
+            &vk::SemaphoreCreateInfo::builder().push_next(
+                &mut vk::SemaphoreTypeCreateInfo::builder()
+                    .semaphore_type(vk::SemaphoreType::TIMELINE)
+                    .initial_value(0),
+            ),
+            None,
+        )?;
+
+        Ok(Self {
+            device,
+            queue,
+            family,
+            command_pool,
+            command_buffer,
+            timeline_semaphore,
+            instance,
+            entry,
+        })
     }
 }

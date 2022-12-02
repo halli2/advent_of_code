@@ -54,13 +54,13 @@ impl AdventSolver for DayTwo {
             .map(|l| {
                 (
                     // map to 1-3
-                    l.chars().next().unwrap() as i32 - 64,
+                    l.chars().next().unwrap() as u32 - 64,
                     // map to 0, 3, 6
-                    (l.chars().nth(2).unwrap() as i32 - 88) * 3,
+                    (l.chars().nth(2).unwrap() as u32 - 88) * 3,
                 )
             })
             .map(|(opp, strat)| (strat / 3 + opp + 1) % 3 + 1 + strat)
-            .sum::<i32>()
+            .sum::<u32>()
             .into()
         // input
         //     .lines()

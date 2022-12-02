@@ -81,6 +81,7 @@ pub trait AdventSolver {
 
 pub enum Solution {
     I32(i32),
+    U8(u8),
     U16(u16),
     U32(u32),
     VecU32(Vec<u32>),
@@ -93,6 +94,7 @@ impl std::fmt::Display for Solution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Solution::I32(v) => v.fmt(f),
+            Solution::U8(v) => v.fmt(f),
             Solution::U16(v) => v.fmt(f),
             Solution::U32(v) => v.fmt(f),
             Solution::VecU32(v) => {
@@ -119,6 +121,7 @@ macro_rules! from {
 }
 from! {usize, Usize}
 from! {i32, I32}
+from! {u8, U8}
 from! {u16, U16}
 from! {u32, U32}
 from! {String, String}

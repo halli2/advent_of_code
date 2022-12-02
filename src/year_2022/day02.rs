@@ -6,10 +6,6 @@ use crate::bench;
 use crate::{AdventSolver, Solution};
 
 pub struct DayTwo {}
-#[inline(always)]
-fn get(input: &[u8], i: usize) -> u8 {
-    unsafe { *input.as_ptr().add(i) }
-}
 
 impl AdventSolver for DayTwo {
     fn part_one(&self, input: &str) -> Solution {
@@ -21,8 +17,8 @@ impl AdventSolver for DayTwo {
         let mut total = 0;
         let len = input.len();
         while i < len {
-            let op = get(input, i) as i32 - 64;
-            let strat = get(input, i + 2) as i32 - 87;
+            let op = input[i] as i32 - 64;
+            let strat = input[i + 2] as i32 - 87;
             total += (strat - op + 4) % 3 * 3 + strat;
             i += 4;
         }
@@ -50,14 +46,13 @@ impl AdventSolver for DayTwo {
         // X - Lose
         // Y - Draw
         // Z - Win
-
         let input = input.as_bytes();
         let mut i = 0;
         let mut total = 0;
         let len = input.len();
         while i < len {
-            let op = get(input, i) as u32 - 64;
-            let strat = (get(input, i + 2) as u32 - 88) * 3;
+            let op = input[i] as u32 - 64;
+            let strat = (input[i + 2] as u32 - 88) * 3;
             total += (strat / 3 + op + 1) % 3 + 1 + strat;
             i += 4;
         }

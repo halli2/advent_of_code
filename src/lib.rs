@@ -7,6 +7,7 @@ pub mod gpu;
 pub mod parser;
 
 #[cfg(test)]
+/// `bench {2022, 1, DayOne, year_2022}`
 pub macro bench($year:literal, $day:tt, $struct:ident, $year_mod:ident) {
     mod tests {
         use std::fs;

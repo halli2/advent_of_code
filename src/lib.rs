@@ -6,7 +6,7 @@ pub mod gpu;
 pub mod parser;
 
 #[cfg(test)]
-/// `bench {2022, 1, DayOne, year_2022}`
+/// `bench {2022, 1, DayOne, year_2022, (answer_1), (answer_2)}`
 macro_rules! bench {
     ($year:literal, $day:tt, $struct:ident, $year_mod:ident) => {
         mod tests {
@@ -35,6 +35,39 @@ macro_rules! bench {
                 b.iter(|| {
                     black_box(day.part_two(black_box(&content)));
                 })
+            }
+        }
+    };
+    ($year:literal, $day:tt, $struct:ident, $year_mod:ident, $answer_1:expr, $answer_2:expr) => {
+        mod tests {
+            use std::fs;
+            use test::{black_box, Bencher};
+
+            use crate::{AdventSolver, Solution};
+
+            use crate::$year_mod::$struct;
+
+            #[bench]
+            fn part1(b: &mut Bencher) {
+                let content =
+                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+                let day = $struct {};
+                b.iter(|| {
+                    black_box(day.part_one(black_box(&content)));
+                });
+                let answer = day.part_one(&content);
+                assert_eq!($answer_1, answer);
+            }
+            #[bench]
+            fn part2(b: &mut Bencher) {
+                let content =
+                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+                let day = $struct {};
+                b.iter(|| {
+                    black_box(day.part_two(black_box(&content)));
+                });
+                let answer = day.part_two(&content);
+                assert_eq!($answer_2, answer);
             }
         }
     };
@@ -70,7 +103,8 @@ pub mod year_2022 {
     day! {
         0::day00::DayZero,
         1::day01::DayOne,
-        2::day02::DayTwo
+        2::day02::DayTwo,
+        3::day03::DayThree
     }
 }
 
@@ -80,6 +114,7 @@ pub trait AdventSolver {
     fn visualize(&self, _input: &str) {}
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum Solution {
     I32(i32),
     U8(u8),

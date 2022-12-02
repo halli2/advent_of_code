@@ -49,4 +49,4 @@ impl AdventSolver for DayOne {
 }
 
 #[cfg(test)]
-bench! {2022, 1, DayOne, year_2022}
+bench! {2022, 1, DayOne, year_2022, Solution::U32(68292), Solution::U32(203203)}

@@ -72,7 +72,7 @@ impl AdventSolver for DayTwo {
 }
 
 #[cfg(test)]
-bench! {2022, 2, DayTwo, year_2022}
+bench! {2022, 2, DayTwo, year_2022, Solution::U32(11906), Solution::U32(11186)}
 
 // impl AdventSolver for DayTwo {
 //     fn part_one(&self, input: &str) -> Solution {

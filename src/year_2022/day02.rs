@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 #[cfg(test)]
 use crate::bench;
 

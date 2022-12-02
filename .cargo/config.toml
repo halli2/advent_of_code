@@ -1,0 +1,19 @@
+[target.'cfg(all())']
+rustflags = [
+  "-Wclippy::all",
+  "-Wclippy::pedantic",
+  "-Wclippy::nursery",
+  # "-Wclippy::restriction",
+  # "-Wclippy::cargo",
+  
+  "-Aclippy::needless-for-each",
+  "-Aclippy::must-use-candidate",
+  "-Aclippy::too-many-lines",
+  "-Aclippy::uninlined-format-args",
+  "-Aclippy::cast-possible-truncation",
+  "-Aclippy::use-self",
+  "-Aclippy::missing-errors-doc",
+  "-Aclippy::missing-panics-doc",
+  "-Aclippy::unimplemented",
+  "-Aclippy::todo",
+]

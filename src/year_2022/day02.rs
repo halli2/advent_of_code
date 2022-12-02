@@ -5,7 +5,7 @@ use crate::{AdventSolver, Solution};
 
 pub struct DayTwo {}
 
-fn cast<T>(data: &[u8]) -> &[T] {
+const fn cast<T>(data: &[u8]) -> &[T] {
     unsafe {
         slice::from_raw_parts(
             (data as *const [u8]).cast::<T>(),
@@ -14,15 +14,15 @@ fn cast<T>(data: &[u8]) -> &[T] {
     }
 }
 
-const AX: u32 = 173547585;
-const AY: u32 = 173613121;
-const AZ: u32 = 173678657;
-const BX: u32 = 173547586;
-const BY: u32 = 173613122;
-const BZ: u32 = 173678658;
-const CX: u32 = 173547587;
-const CY: u32 = 173613123;
-const CZ: u32 = 173678659;
+const AX: u32 = 0b1010_0101_1000_0010_0000_0100_0001;
+const AY: u32 = 0b1010_0101_1001_0010_0000_0100_0001;
+const AZ: u32 = 0b1010_0101_1010_0010_0000_0100_0001;
+const BX: u32 = 0b1010_0101_1000_0010_0000_0100_0010;
+const BY: u32 = 0b1010_0101_1001_0010_0000_0100_0010;
+const BZ: u32 = 0b1010_0101_1010_0010_0000_0100_0010;
+const CX: u32 = 0b1010_0101_1000_0010_0000_0100_0011;
+const CY: u32 = 0b1010_0101_1001_0010_0000_0100_0011;
+const CZ: u32 = 0b1010_0101_1010_0010_0000_0100_0011;
 
 const ANSWERS_1: [u32; 20] = {
     let mut a = [0_u32; 20];

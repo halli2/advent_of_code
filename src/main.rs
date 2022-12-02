@@ -1,6 +1,7 @@
-use advent_of_code::*;
-use color_eyre::eyre::eyre;
 use std::{env, fs, time::Instant};
+
+use advent_of_code::{year_2015, year_2022, AdventSolver};
+use color_eyre::eyre::eyre;
 
 static CURRENT_YEAR: u32 = 2022;
 
@@ -41,7 +42,7 @@ fn main() -> color_eyre::Result<()> {
     };
 
     let start_time = Instant::now();
-    let solved = match part {
+    let solution = match part {
         1 => Some(solver.part_one(&content)),
         2 => Some(solver.part_two(&content)),
         3 => {
@@ -53,9 +54,9 @@ fn main() -> color_eyre::Result<()> {
             None
         }
     };
-    let elapsed = start_time.elapsed().as_nanos() as f64 / 1_000.0;
-    if let Some(solved) = solved {
-        println!("Solved day {day} - part {part} in {:.2} µs", elapsed);
+    let elapsed = start_time.elapsed().as_nanos();
+    if let Some(solved) = solution {
+        println!("Solved day {day} - part {part} in {:.2} ns", elapsed);
         println!("Answer:\n{solved}");
     }
 

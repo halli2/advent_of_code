@@ -2,11 +2,11 @@ use crate::{AdventSolver, Solution};
 pub struct DayThree {}
 
 impl AdventSolver for DayThree {
-    fn part_one(&self, input: &str) -> Solution {
+    fn part_one(&self, _input: &str) -> Solution {
         Solution::Unsolved
     }
 
-    fn part_two(&self, input: &str) -> Solution {
+    fn part_two(&self, _input: &str) -> Solution {
         Solution::Unsolved
     }
 }

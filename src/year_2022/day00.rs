@@ -1,6 +1,6 @@
-use crate::{AdventSolver, Solution};
 use chumsky::prelude::*;
-use rayon::prelude::*;
+
+use crate::{AdventSolver, Solution};
 
 #[derive(Debug)]
 pub enum Cmd {
@@ -48,16 +48,12 @@ impl AdventSolver for DayZero {
         match example_parser().parse(input) {
             Ok(commands) => {
                 let (forw, up) = commands
-                    .par_iter()
-                    .fold(
-                        || (0, 0),
-                        |(forw, depth), cmd| match cmd {
-                            Cmd::Forward(c) => (forw + c, depth),
-                            Cmd::Up(c) => (forw, depth - c),
-                            Cmd::Down(c) => (forw, depth + c),
-                        },
-                    )
-                    .reduce(|| (0, 0), |a, b| (a.0 + b.0, a.1 + b.1));
+                    .iter()
+                    .fold((0, 0), |(forw, depth), cmd| match cmd {
+                        Cmd::Forward(c) => (forw + c, depth),
+                        Cmd::Up(c) => (forw, depth - c),
+                        Cmd::Down(c) => (forw, depth + c),
+                    });
                 (forw * up).into()
             }
             Err(parse_err) => parse_err
@@ -70,7 +66,7 @@ impl AdventSolver for DayZero {
 
     /// Example without tools
     fn part_two(&self, input: &str) -> Solution {
-        let (forw, depth) = input.lines().map(|l| l.split_once(" ").unwrap()).fold(
+        let (forw, depth) = input.lines().map(|l| l.split_once(' ').unwrap()).fold(
             (0, 0),
             |(forw, depth), (dir, count)| match (dir, count.parse::<i32>().unwrap_or(0)) {
                 ("forward", v) => (forw + v, depth),

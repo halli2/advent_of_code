@@ -11,11 +11,10 @@ macro_rules! bench {
     ($year:literal, $day:tt, $struct:ident, $year_mod:ident) => {
         mod tests {
             use std::fs;
+
             use test::{black_box, Bencher};
 
-            use crate::AdventSolver;
-
-            use crate::$year_mod::$struct;
+            use crate::{$year_mod::$struct, AdventSolver};
 
             #[bench]
             fn part1(b: &mut Bencher) {
@@ -41,11 +40,10 @@ macro_rules! bench {
     ($year:literal, $day:tt, $struct:ident, $year_mod:ident, $answer_1:expr, $answer_2:expr) => {
         mod tests {
             use std::fs;
+
             use test::{black_box, Bencher};
 
-            use crate::{AdventSolver, Solution};
-
-            use crate::$year_mod::$struct;
+            use crate::{$year_mod::$struct, AdventSolver, Solution};
 
             #[bench]
             fn part1(b: &mut Bencher) {
@@ -135,7 +133,7 @@ impl std::fmt::Display for Solution {
             Solution::U32(v) => v.fmt(f),
             Solution::VecU32(v) => {
                 for v in v {
-                    write!(f, "{v} ")?
+                    write!(f, "{v} ")?;
                 }
                 Ok(())
             }

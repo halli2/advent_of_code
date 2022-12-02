@@ -15,6 +15,7 @@ impl AdventSolver for DayTwo {
         let mut total = 0;
         let len = input.len();
         while i < len {
+            // Map to 1, 2 or 3
             let op = input[i] as i32 - 64;
             let strat = input[i + 2] as i32 - 87;
             total += (strat - op + 4) % 3 * 3 + strat;
@@ -49,7 +50,9 @@ impl AdventSolver for DayTwo {
         let mut total = 0;
         let len = input.len();
         while i < len {
+            // Map to 1, 2 or 3
             let op = input[i] as u32 - 64;
+            // Map to 0, 3 or 6
             let strat = (input[i + 2] as u32 - 88) * 3;
             total += (strat / 3 + op + 1) % 3 + 1 + strat;
             i += 4;

@@ -1,4 +1,3 @@
-#![feature(decl_macro)]
 #![feature(test)]
 extern crate test;
 
@@ -8,35 +7,37 @@ pub mod parser;
 
 #[cfg(test)]
 /// `bench {2022, 1, DayOne, year_2022}`
-pub macro bench($year:literal, $day:tt, $struct:ident, $year_mod:ident) {
-    mod tests {
-        use std::fs;
-        use test::{black_box, Bencher};
+macro_rules! bench {
+    ($year:literal, $day:tt, $struct:ident, $year_mod:ident) => {
+        mod tests {
+            use std::fs;
+            use test::{black_box, Bencher};
 
-        use crate::AdventSolver;
+            use crate::AdventSolver;
 
-        use crate::$year_mod::$struct;
+            use crate::$year_mod::$struct;
 
-        #[bench]
-        fn part1(b: &mut Bencher) {
-            let content =
-                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
-            let day = $struct {};
-            b.iter(|| {
-                black_box(day.part_one(black_box(&content)));
-            })
+            #[bench]
+            fn part1(b: &mut Bencher) {
+                let content =
+                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+                let day = $struct {};
+                b.iter(|| {
+                    black_box(day.part_one(black_box(&content)));
+                })
+            }
+
+            #[bench]
+            fn part2(b: &mut Bencher) {
+                let content =
+                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+                let day = $struct {};
+                b.iter(|| {
+                    black_box(day.part_two(black_box(&content)));
+                })
+            }
         }
-
-        #[bench]
-        fn part2(b: &mut Bencher) {
-            let content =
-                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
-            let day = $struct {};
-            b.iter(|| {
-                black_box(day.part_two(black_box(&content)));
-            })
-        }
-    }
+    };
 }
 
 macro_rules! day {

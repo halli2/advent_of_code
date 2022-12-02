@@ -1,6 +1,3 @@
-#[cfg(test)]
-use crate::bench;
-
 use crate::{AdventSolver, Solution};
 pub struct DayOne {}
 

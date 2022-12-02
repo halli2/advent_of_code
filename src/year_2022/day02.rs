@@ -13,20 +13,17 @@ impl AdventSolver for DayTwo {
         input
             .lines()
             .into_iter()
-            .fold(0u32, |score, line| {
-                let mut play = line.split_whitespace();
-                match (play.next(), play.next()) {
-                    (Some("A"), Some("X")) => score + 4,
-                    (Some("A"), Some("Y")) => score + 8,
-                    (Some("A"), Some("Z")) => score + 3,
-                    (Some("B"), Some("X")) => score + 1,
-                    (Some("B"), Some("Y")) => score + 5,
-                    (Some("B"), Some("Z")) => score + 9,
-                    (Some("C"), Some("X")) => score + 7,
-                    (Some("C"), Some("Y")) => score + 2,
-                    (Some("C"), Some("Z")) => score + 6,
-                    _ => unreachable!(),
-                }
+            .fold(0u32, |score, line| match line {
+                "A X" => score + 4,
+                "A Y" => score + 8,
+                "A Z" => score + 3,
+                "B X" => score + 1,
+                "B Y" => score + 5,
+                "B Z" => score + 9,
+                "C X" => score + 7,
+                "C Y" => score + 2,
+                "C Z" => score + 6,
+                _ => unreachable!(),
             })
             .into()
     }
@@ -38,20 +35,17 @@ impl AdventSolver for DayTwo {
         input
             .lines()
             .into_iter()
-            .fold(0u32, |score, line| {
-                let mut play = line.split_whitespace();
-                match (play.next(), play.next()) {
-                    (Some("A"), Some("X")) => score + 3,
-                    (Some("B"), Some("X")) => score + 1,
-                    (Some("C"), Some("X")) => score + 2,
-                    (Some("A"), Some("Y")) => score + 4,
-                    (Some("B"), Some("Y")) => score + 5,
-                    (Some("C"), Some("Y")) => score + 6,
-                    (Some("A"), Some("Z")) => score + 8,
-                    (Some("B"), Some("Z")) => score + 9,
-                    (Some("C"), Some("Z")) => score + 7,
-                    _ => unreachable!(),
-                }
+            .fold(0u32, |score, line| match line {
+                "A X" => score + 3,
+                "B X" => score + 1,
+                "C X" => score + 2,
+                "A Y" => score + 4,
+                "B Y" => score + 5,
+                "C Y" => score + 6,
+                "A Z" => score + 8,
+                "B Z" => score + 9,
+                "C Z" => score + 7,
+                _ => unreachable!(),
             })
             .into()
     }

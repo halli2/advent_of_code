@@ -57,19 +57,19 @@ const ANSWERS_2: [u32; 20] = {
 impl AdventSolver for DayTwo {
     fn part_one(&self, input: &str) -> Solution {
         let input = cast::<u32>(input.as_bytes());
-        let mut total = 0;
-        for line in input {
-            total += ANSWERS_1[(line.wrapping_mul(AX) >> 27) as usize];
-        }
+        let total: u32 = input
+            .iter()
+            .map(|l| ANSWERS_1[(l.wrapping_mul(AX) >> 27) as usize])
+            .sum();
         total.into()
     }
 
     fn part_two(&self, input: &str) -> Solution {
         let input = cast::<u32>(input.as_bytes());
-        let mut total = 0;
-        for line in input {
-            total += ANSWERS_2[(line.wrapping_mul(AX) >> 27) as usize];
-        }
+        let total: u32 = input
+            .iter()
+            .map(|l| ANSWERS_2[(l.wrapping_mul(AX) >> 27) as usize])
+            .sum();
         total.into()
     }
 }

@@ -46,9 +46,9 @@ impl AdventSolver for DayThree {
 bench! {2022, 3, DayThree, year_2022, Solution::U32(7824), Solution::U32(2798)}
 
 #[cfg(test)]
-mod teests {
+mod tests {
     #[test]
-    fn ggg() {
+    fn map_char_to_value() {
         let a = 97;
         let cap_a = 65;
         assert_eq!(1, (a - 38) % 58);

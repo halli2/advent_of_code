@@ -106,7 +106,7 @@ impl From<Vec<u32>> for Solution {
 /// `bench {2022, 1, DayOne, year_2022, (answer_1), (answer_2)}`
 macro_rules! bench {
     ($year:literal, $day:tt, $struct:ident, $year_mod:ident) => {
-        mod tests {
+        mod benches {
             use std::fs;
 
             use test::{black_box, Bencher};
@@ -134,7 +134,7 @@ macro_rules! bench {
         }
     };
     ($year:literal, $day:tt, $struct:ident, $year_mod:ident, $answer_1:expr, $answer_2:expr) => {
-        mod tests {
+        mod benches {
             use std::fs;
 
             use test::{black_box, Bencher};

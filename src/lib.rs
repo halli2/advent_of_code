@@ -1,5 +1,5 @@
+#![feature(iter_array_chunks)]
 #![feature(test)]
-#![feature(slice_partition_dedup)]
 extern crate test;
 
 mod error;

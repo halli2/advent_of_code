@@ -10,36 +10,35 @@ pub struct DayThree {}
 
 impl AdventSolver for DayThree {
     fn part_one(&self, input: &str) -> Solution {
-        let input = input.lines();
-        let mut total = 0_u32;
-        for line in input {
-            let l = line.as_bytes();
-            let mid = l.len() / 2;
-            let left = &l[..mid];
-            let right = &l[mid..];
-            let dup = left.iter().find(|x| right.iter().any(|y| y == *x)).unwrap();
-            total += u32::from((dup - 38) % 58);
-        }
-        total.into()
+        input
+            .lines()
+            .map(str::as_bytes)
+            .into_iter()
+            .map(|l| {
+                let mid = l.len() / 2;
+                let left = &l[..mid];
+                let right = &l[mid..];
+                let dup = left.iter().find(|x| right.contains(x)).unwrap();
+                u32::from((dup - 38) % 58)
+            })
+            .sum::<u32>()
+            .into()
     }
 
     fn part_two(&self, input: &str) -> Solution {
-        let input = input
-            .split_whitespace()
+        input
+            .lines()
             .map(str::as_bytes)
-            .collect::<Vec<_>>();
-        let mut dup_vec: Vec<u8> = Vec::new();
-        let mut total = 0;
-        for chunk in input.chunks(3) {
-            dup_vec.clear();
-            dup_vec.extend(chunk[0].iter().filter(|x| chunk[1].iter().any(|y| y == *x)));
-            let dup = chunk[2]
-                .iter()
-                .find(|x| dup_vec.iter().any(|y| *x == y))
-                .unwrap();
-            total += u32::from((dup - 38) % 58);
-        }
-        total.into()
+            .array_chunks::<3>()
+            .map(|chunk| {
+                let dup = chunk[0]
+                    .iter()
+                    .find(|x| chunk[1].contains(x) & chunk[2].contains(x))
+                    .unwrap();
+                u32::from((dup - 38) % 58)
+            })
+            .sum::<u32>()
+            .into()
     }
 }
 

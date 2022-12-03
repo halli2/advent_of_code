@@ -49,8 +49,8 @@ bench! {2022, 3, DayThree, year_2022, Solution::U32(7824), Solution::U32(2798)}
 mod tests {
     #[test]
     fn map_char_to_value() {
-        let a = 97;
-        let cap_a = 65;
+        let a = b'a';
+        let cap_a = b'A';
         assert_eq!(1, (a - 38) % 58);
         assert_eq!(27, (cap_a - 38) % 58);
     }

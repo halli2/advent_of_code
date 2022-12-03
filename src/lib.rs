@@ -1,4 +1,5 @@
 #![feature(test)]
+#![feature(slice_partition_dedup)]
 extern crate test;
 
 mod error;
@@ -100,6 +101,7 @@ impl From<Vec<u32>> for Solution {
     }
 }
 
+#[macro_export]
 #[cfg(test)]
 /// `bench {2022, 1, DayOne, year_2022, (answer_1), (answer_2)}`
 macro_rules! bench {
@@ -108,8 +110,7 @@ macro_rules! bench {
             use std::fs;
 
             use test::{black_box, Bencher};
-
-            use crate::{$year_mod::$struct, AdventSolver};
+            use $crate::{$year_mod::$struct, AdventSolver};
 
             #[bench]
             fn part1(b: &mut Bencher) {
@@ -137,8 +138,7 @@ macro_rules! bench {
             use std::fs;
 
             use test::{black_box, Bencher};
-
-            use crate::{$year_mod::$struct, AdventSolver, Solution};
+            use $crate::{$year_mod::$struct, AdventSolver, Solution};
 
             #[bench]
             fn part1(b: &mut Bencher) {

@@ -13,7 +13,6 @@ impl AdventSolver for DayThree {
         input
             .lines()
             .map(str::as_bytes)
-            .into_iter()
             .map(|l| {
                 let mid = l.len() / 2;
                 let left = &l[..mid];

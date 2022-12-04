@@ -1,23 +1,23 @@
+#[cfg(test)]
+use crate::bench;
 use crate::{AdventSolver, Solution};
 
 pub struct DayOne {}
 
 impl AdventSolver for DayOne {
     fn part_one(&self, input: &str) -> Solution {
-        let mut res = 0;
-        for c in input.chars() {
-            match c {
-                '(' => res += 1,
-                ')' => res -= 1,
-                _ => {}
-            }
-        }
-        res.into()
+        input
+            .trim()
+            .chars()
+            .into_iter()
+            .map(|c| if c == '(' { 1 } else { -1 })
+            .sum::<i16>()
+            .into()
     }
 
     fn part_two(&self, input: &str) -> Solution {
         let mut res = 0;
-        for (index, c) in input.chars().enumerate() {
+        for (index, c) in input.trim().chars().enumerate() {
             match c {
                 '(' => res += 1,
                 ')' => res -= 1,
@@ -30,3 +30,5 @@ impl AdventSolver for DayOne {
         Solution::Unsolved
     }
 }
+#[cfg(test)]
+bench! {2015, 1, DayOne, year_2015}

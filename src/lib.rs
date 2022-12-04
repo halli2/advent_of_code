@@ -14,6 +14,8 @@ pub trait AdventSolver {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Solution {
+    I8(i8),
+    I16(i16),
     I32(i32),
     U8(u8),
     U16(u16),
@@ -63,6 +65,8 @@ pub mod year_2022 {
 impl std::fmt::Display for Solution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Solution::I8(v) => v.fmt(f),
+            Solution::I16(v) => v.fmt(f),
             Solution::I32(v) => v.fmt(f),
             Solution::U8(v) => v.fmt(f),
             Solution::U16(v) => v.fmt(f),
@@ -90,6 +94,8 @@ macro_rules! from {
     };
 }
 from! {usize, Usize}
+from! {i8, I8}
+from! {i16, I16}
 from! {i32, I32}
 from! {u8, U8}
 from! {u16, U16}

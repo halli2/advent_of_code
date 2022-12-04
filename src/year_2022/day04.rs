@@ -59,6 +59,38 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for ParserIter<'a, T> {
     }
 }
 
+struct Parser<'a, T: ExactSizeIterator<Item = &'a u8>>(T);
+
+impl<'a, T: ExactSizeIterator<Item = &'a u8>> Parser<'a, T> {
+    const fn new(iter: T) -> Self {
+        Self(iter)
+    }
+}
+
+impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for Parser<'a, T> {
+    type Item = [u8; 4];
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0.is_empty() {
+            return None;
+        }
+        let mut values = [0_u8; 4];
+        for value in &mut values {
+            let byte_1 = unsafe { *self.0.next().unwrap_unchecked() };
+            let byte_2 = unsafe { *self.0.next().unwrap_unchecked() };
+            let value_1 = byte_1 & 0x0f;
+            let value_2 = byte_2 & 0x0f;
+            *value = if value_2 > 9 {
+                value_1
+            } else {
+                unsafe { self.0.next().unwrap_unchecked() };
+                value_1.wrapping_mul(10).wrapping_add(value_2)
+            }
+        }
+        Some(values)
+    }
+}
+
 impl AdventSolver for DayFour {
     fn part_one(&self, input: &str) -> Solution {
         ParserIter::new(input.as_bytes().iter())
@@ -128,17 +160,27 @@ impl AdventSolver for DayFour {
     }
 
     fn part_two(&self, input: &str) -> Solution {
-        input
-            .lines()
-            .into_iter()
-            .map(sections)
-            .filter(|(left, right)| match left.start.cmp(&right.start) {
-                Ordering::Greater => left.start <= right.end,
-                Ordering::Less => left.end >= right.start,
-                Ordering::Equal => true,
+        Parser::new(input.as_bytes().iter())
+            .filter(|[left_start, left_end, right_start, right_end]| {
+                match left_start.cmp(right_start) {
+                    Ordering::Greater => left_start <= right_end,
+                    Ordering::Less => left_end >= right_start,
+                    Ordering::Equal => true,
+                }
             })
             .count()
             .into()
+        // input
+        //     .lines()
+        //     .into_iter()
+        //     .map(sections)
+        //     .filter(|(left, right)| match left.start.cmp(&right.start) {
+        //         Ordering::Greater => left.start <= right.end,
+        //         Ordering::Less => left.end >= right.start,
+        //         Ordering::Equal => true,
+        //     })
+        //     .count()
+        //     .into()
     }
 }
 

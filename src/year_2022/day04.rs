@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[cfg(test)]
 use crate::bench;
 use crate::{AdventSolver, Solution};
@@ -23,21 +25,20 @@ impl AdventSolver for DayFour {
             .into_iter()
             .map(sections)
             .map(|((left_1, left_2), (right_1, right_2))| {
-                match (left_1, right_1) {
-                    (left, right) if left > right => {
+                match left_1.cmp(&right_1) {
+                    Ordering::Greater => {
                         if left_2 <= right_2 {
                             return 1;
                         }
                     }
-                    (left, right) if left < right => {
+                    Ordering::Less => {
                         if left_2 >= right_2 {
                             return 1;
                         }
                     }
-                    (left, right) if left == right => {
+                    Ordering::Equal => {
                         return 1;
                     }
-                    _ => unreachable!(),
                 }
                 0
             })
@@ -51,21 +52,20 @@ impl AdventSolver for DayFour {
             .into_iter()
             .map(sections)
             .map(|((left_1, left_2), (right_1, right_2))| {
-                match (left_1, right_1) {
-                    (left, right) if left > right => {
-                        if left <= right_2 {
+                match left_1.cmp(&right_1) {
+                    Ordering::Greater => {
+                        if left_1 <= right_2 {
                             return 1;
                         }
                     }
-                    (left, right) if left < right => {
-                        if left_2 >= right {
+                    Ordering::Less => {
+                        if left_2 >= right_1 {
                             return 1;
                         }
                     }
-                    (left, right) if left == right => {
+                    Ordering::Equal => {
                         return 1;
                     }
-                    _ => unreachable!(),
                 }
                 0
             })

@@ -55,7 +55,8 @@ pub mod year_2022 {
         0::day00::DayZero,
         1::day01::DayOne,
         2::day02::DayTwo,
-        3::day03::DayThree
+        3::day03::DayThree,
+        4::day04::DayFour
     }
 }
 

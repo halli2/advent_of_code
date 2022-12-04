@@ -1,3 +1,4 @@
+#![feature(exact_size_is_empty)]
 #![feature(iter_array_chunks)]
 #![feature(test)]
 extern crate test;
@@ -125,7 +126,7 @@ macro_rules! bench {
                     fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
                 let day = $struct {};
                 b.iter(|| {
-                    black_box(day.part_one(black_box(&content)));
+                    day.part_one(black_box(&content));
                 })
             }
 
@@ -135,7 +136,7 @@ macro_rules! bench {
                     fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
                 let day = $struct {};
                 b.iter(|| {
-                    black_box(day.part_two(black_box(&content)));
+                    day.part_two(black_box(&content));
                 })
             }
         }

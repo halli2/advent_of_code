@@ -1,3 +1,7 @@
+use std::cell::UnsafeCell;
+
+use arrayvec::ArrayVec;
+
 #[cfg(test)]
 use crate::bench;
 use crate::{AdventSolver, Solution};
@@ -55,10 +59,7 @@ impl AdventSolver for DayFive {
     fn part_one(&self, input: &str) -> Solution {
         let (crates, instructions) = input.split_once("\n\n").unwrap();
         // stacks of crates
-        let mut stacks: Vec<Vec<char>> = (0..10)
-            .into_iter()
-            .map(|_| Vec::with_capacity(50))
-            .collect();
+        let mut stacks: [ArrayVec<char, 50>; 10] = Default::default();
         // Want stack number first, and upper most crate last so reverse
         for line in crates.lines().rev().skip(1) {
             // remove first `[`
@@ -76,7 +77,6 @@ impl AdventSolver for DayFive {
                 stacks[instr.to as usize].push(value);
             }
         }
-
         let mut result = String::with_capacity(9);
         for stack in &mut stacks {
             if let Some(v) = stack.pop() {
@@ -88,39 +88,72 @@ impl AdventSolver for DayFive {
 
     fn part_two(&self, input: &str) -> Solution {
         let (crates, instructions) = input.split_once("\n\n").unwrap();
-        // stacks of crates
-        let mut stacks: Vec<Vec<char>> = (0..10)
-            .into_iter()
-            .map(|_| Vec::with_capacity(50))
-            .collect();
-        // Want stack number first, and upper most crate last so reverse
+        let stacks: [UnsafeCell<ArrayVec<char, 60>>; 10] = Default::default();
         for line in crates.lines().rev().skip(1) {
             // remove first `[`
-            let chars = line.chars().skip(1);
             // index 1, 5, 9, 13 etc..
-            for (index, char) in chars.step_by(4).enumerate() {
+            for (index, char) in line.chars().skip(1).step_by(4).enumerate() {
                 if char != ' ' {
-                    stacks[index + 1].push(char);
+                    unsafe {
+                        let inner: &mut ArrayVec<char, 60> = &mut *stacks[index + 1].get();
+                        inner.push(char);
+                    }
                 }
             }
         }
-        let mut intermediate = Vec::with_capacity(40);
         for instr in InstructionsParser::new(instructions.as_bytes().iter()) {
-            (0..instr.amount)
-                .into_iter()
-                .map(|_| unsafe { stacks[instr.from as usize].pop().unwrap_unchecked() })
-                .collect_into(&mut intermediate);
-            intermediate.reverse();
-            stacks[instr.to as usize].append(&mut intermediate);
+            unsafe {
+                let inner_from: &mut ArrayVec<char, 60> = &mut *stacks[instr.from as usize].get();
+                let inner_to: &mut ArrayVec<char, 60> = &mut *stacks[instr.to as usize].get();
+                let last = inner_from.len();
+                let values = inner_from.drain((last - instr.amount as usize)..);
+
+                inner_to.extend(values);
+            }
         }
 
         let mut result = String::with_capacity(9);
-        for stack in &mut stacks {
+        for vec in stacks {
+            let stack: &mut ArrayVec<char, 60> = unsafe { &mut *vec.get() };
             if let Some(v) = stack.pop() {
                 result.push(v);
             }
         }
         result.into()
+        // let (crates, instructions) = input.split_once("\n\n").unwrap();
+        // // stacks of crates
+        // let mut stacks: [ArrayVec<char, 50>; 10] = Default::default();
+        // // let mut stacks: Vec<Vec<char>> = (0..10)
+        // //     .into_iter()
+        // //     .map(|_| Vec::with_capacity(50))
+        // //     .collect();
+        // // Want stack number first, and upper most crate last so reverse
+        // for line in crates.lines().rev().skip(1) {
+        //     // remove first `[`
+        //     // index 1, 5, 9, 13 etc..
+        //     for (index, char) in line.chars().skip(1).step_by(4).enumerate() {
+        //         if char != ' ' {
+        //             stacks[index + 1].push(char);
+        //         }
+        //     }
+        // }
+        // let mut intermediate = ArrayVec::<_, 50>::new();
+        // for instr in InstructionsParser::new(instructions.as_bytes().iter()) {
+        //     (0..instr.amount)
+        //         .into_iter()
+        //         .map(|_| unsafe { stacks[instr.from as usize].pop().unwrap_unchecked() })
+        //         .collect_into(&mut intermediate);
+        //     intermediate.reverse();
+        //     stacks[instr.to as usize].extend(&mut intermediate.drain(..));
+        // }
+
+        // let mut result = String::with_capacity(9);
+        // for stack in &mut stacks {
+        //     if let Some(v) = stack.pop() {
+        //         result.push(v);
+        //     }
+        // }
+        // result.into()
     }
 }
 

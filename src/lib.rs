@@ -1,4 +1,5 @@
 #![feature(exact_size_is_empty)]
+#![feature(iter_collect_into)]
 #![feature(iter_array_chunks)]
 #![feature(test)]
 extern crate test;

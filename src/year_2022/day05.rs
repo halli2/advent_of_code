@@ -30,7 +30,7 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for InstructionsParser<'a
         let amount_1 = unsafe { self.0.nth(5).unwrap_unchecked() } & 0x0f;
         let byte_2 = unsafe { self.0.next().unwrap_unchecked() };
         // If space
-        let amount = if *byte_2 == 0b0010_0000 {
+        let amount = if *byte_2 == b' ' {
             amount_1
         } else {
             unsafe { self.0.next().unwrap_unchecked() }; // iter to next value
@@ -38,12 +38,13 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for InstructionsParser<'a
             amount_1.wrapping_mul(10).wrapping_add(amount_2)
         };
         // At most 9 crates(?) so don't need to check for double digits
-        // 012345
-        // from x
-        let from = (unsafe { self.0.nth(5).unwrap_unchecked() } & 0x0f) - 1;
+        // `012345
+        //  from x`
+        // Index 1 - 9
+        let from = unsafe { self.0.nth(5).unwrap_unchecked() } & 0x0f;
         // 01234
         //  to x
-        let to = (unsafe { self.0.nth(4).unwrap_unchecked() } & 0x0f) - 1;
+        let to = unsafe { self.0.nth(4).unwrap_unchecked() } & 0x0f;
         unsafe { self.0.next().unwrap_unchecked() };
 
         Some(Instruction { amount, from, to })
@@ -54,17 +55,18 @@ impl AdventSolver for DayFive {
     fn part_one(&self, input: &str) -> Solution {
         let (crates, instructions) = input.split_once("\n\n").unwrap();
         // stacks of crates
-        let mut stacks: Vec<Vec<char>> = (0..9).into_iter().map(|_| Vec::new()).collect();
+        let mut stacks: Vec<Vec<char>> = (0..10)
+            .into_iter()
+            .map(|_| Vec::with_capacity(50))
+            .collect();
         // Want stack number first, and upper most crate last so reverse
-        let mut lines = crates.lines().rev();
-        lines.next();
-        for line in lines {
+        for line in crates.lines().rev().skip(1) {
             // remove first `[`
             let chars = line.chars().skip(1);
             // index 1, 5, 9, 13 etc..
             for (index, char) in chars.step_by(4).enumerate() {
                 if char != ' ' {
-                    stacks[index].push(char);
+                    stacks[index + 1].push(char);
                 }
             }
         }
@@ -87,27 +89,29 @@ impl AdventSolver for DayFive {
     fn part_two(&self, input: &str) -> Solution {
         let (crates, instructions) = input.split_once("\n\n").unwrap();
         // stacks of crates
-        let mut stacks: Vec<Vec<char>> = (0..9).into_iter().map(|_| Vec::new()).collect();
+        let mut stacks: Vec<Vec<char>> = (0..10)
+            .into_iter()
+            .map(|_| Vec::with_capacity(50))
+            .collect();
         // Want stack number first, and upper most crate last so reverse
-        let mut lines = crates.lines().rev();
-        lines.next();
-        for line in lines {
+        for line in crates.lines().rev().skip(1) {
             // remove first `[`
             let chars = line.chars().skip(1);
             // index 1, 5, 9, 13 etc..
             for (index, char) in chars.step_by(4).enumerate() {
                 if char != ' ' {
-                    stacks[index].push(char);
+                    stacks[index + 1].push(char);
                 }
             }
         }
+        let mut intermediate = Vec::with_capacity(40);
         for instr in InstructionsParser::new(instructions.as_bytes().iter()) {
-            let mut values: Vec<_> = (0..instr.amount)
+            (0..instr.amount)
                 .into_iter()
-                .map(|_| stacks[instr.from as usize].pop().unwrap())
-                .collect();
-            values.reverse();
-            stacks[instr.to as usize].append(&mut values);
+                .map(|_| unsafe { stacks[instr.from as usize].pop().unwrap_unchecked() })
+                .collect_into(&mut intermediate);
+            intermediate.reverse();
+            stacks[instr.to as usize].append(&mut intermediate);
         }
 
         let mut result = String::with_capacity(9);
@@ -121,7 +125,7 @@ impl AdventSolver for DayFive {
 }
 
 #[cfg(test)]
-bench! {2022, 5, DayFive, year_2022}
+bench! {2022, 5, DayFive, year_2022, Solution::String("JCMHLVGMG".to_owned()), Solution::String("LVMRWSSPZ".to_owned())}
 
 #[cfg(test)]
 mod tests {

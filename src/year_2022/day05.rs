@@ -59,9 +59,9 @@ impl AdventSolver for DayFive {
         let mut lines = crates.lines().rev();
         lines.next();
         for line in lines {
-            let mut chars = line.chars();
-            chars.next(); // remove first `[`
-                          // index 1, 5, 9, 13 etc..
+            // remove first `[`
+            let chars = line.chars().skip(1);
+            // index 1, 5, 9, 13 etc..
             for (index, char) in chars.step_by(4).enumerate() {
                 if char != ' ' {
                     stacks[index].push(char);
@@ -92,9 +92,9 @@ impl AdventSolver for DayFive {
         let mut lines = crates.lines().rev();
         lines.next();
         for line in lines {
-            let mut chars = line.chars();
-            chars.next(); // remove first `[`
-                          // index 1, 5, 9, 13 etc..
+            // remove first `[`
+            let chars = line.chars().skip(1);
+            // index 1, 5, 9, 13 etc..
             for (index, char) in chars.step_by(4).enumerate() {
                 if char != ' ' {
                     stacks[index].push(char);

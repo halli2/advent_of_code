@@ -43,6 +43,39 @@ macro_rules! day {
     }
 }
 
+macro_rules! full_year {
+    () => {
+        day! {
+            0::day00::DayZero,
+            1::day01::DayOne,
+            2::day02::DayTwo,
+            3::day03::DayThree,
+            4::day04::DayFour,
+            5::day05::DayFive,
+            6::day06::DaySix,
+            7::day07::DaySeven,
+            8::day08::DayEight,
+            9::day09::DayNine,
+            10::day10::DayTen,
+            11::day11::DayEleven,
+            12::day12::DayTwelve,
+            13::day13::DayThirteen,
+            14::day14::DayFourteen,
+            15::day15::DayFifteen,
+            16::day16::DaySixteen,
+            17::day17::DaySeventeen,
+            18::day18::DayEighteen,
+            19::day19::DayNineteen,
+            20::day20::DayTwenty,
+            21::day21::DayTwentyOne,
+            22::day22::DayTwentyTwo,
+            23::day23::DayTwentyThree,
+            24::day24::DayTwentyFour,
+            25::day25::DayTwentyFive
+        }
+    };
+}
+
 pub mod year_2015 {
     //! Warm up for 2022
     day! {
@@ -54,13 +87,7 @@ pub mod year_2015 {
 }
 
 pub mod year_2022 {
-    day! {
-        0::day00::DayZero,
-        1::day01::DayOne,
-        2::day02::DayTwo,
-        3::day03::DayThree,
-        4::day04::DayFour
-    }
+    full_year! {}
 }
 
 impl std::fmt::Display for Solution {
@@ -102,6 +129,12 @@ from! {u8, U8}
 from! {u16, U16}
 from! {u32, U32}
 from! {String, String}
+
+impl From<&str> for Solution {
+    fn from(v: &str) -> Self {
+        Self::String(v.to_owned())
+    }
+}
 
 impl From<Vec<u32>> for Solution {
     fn from(v: Vec<u32>) -> Self {

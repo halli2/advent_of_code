@@ -5,11 +5,13 @@ use crate::bench;
 use crate::{AdventSolver, Solution};
 pub struct DayFour {}
 
+#[allow(dead_code)]
 fn section(s: &str) -> Range<u32> {
     s.split_once('-')
         .map(|(left, right)| (left.parse::<u32>().unwrap()..right.parse::<u32>().unwrap()))
         .unwrap()
 }
+#[allow(dead_code)]
 fn sections(s: &str) -> (Range<u32>, Range<u32>) {
     s.split_once(',')
         .map(|(lhs, rhs)| (section(lhs), section(rhs)))

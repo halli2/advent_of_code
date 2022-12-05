@@ -63,17 +63,18 @@ impl AdventSolver for DayFive {
         // Want stack number first, and upper most crate last so reverse
         for line in crates.lines().rev().skip(1) {
             // remove first `[`
-            let chars = line.chars().skip(1);
             // index 1, 5, 9, 13 etc..
-            for (index, char) in chars.step_by(4).enumerate() {
+
+            for (index, char) in line.chars().skip(1).step_by(4).enumerate() {
                 if char != ' ' {
                     stacks[index + 1].push(char);
                 }
             }
         }
+
         for instr in InstructionsParser::new(instructions.as_bytes().iter()) {
             for _ in 0..instr.amount {
-                let value = stacks[instr.from as usize].pop().unwrap();
+                let value = unsafe { stacks[instr.from as usize].pop().unwrap_unchecked() };
                 stacks[instr.to as usize].push(value);
             }
         }

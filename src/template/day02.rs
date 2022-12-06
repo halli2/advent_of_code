@@ -1,9 +1,9 @@
 #[cfg(test)]
 use crate::bench;
 use crate::{AdventSolver, Solution};
-pub struct DayFive {}
+pub struct DayTwo {}
 
-impl AdventSolver for DayFive {
+impl AdventSolver for DayTwo {
     fn part_one(&self, _input: &str) -> Solution {
         todo!()
     }
@@ -14,4 +14,4 @@ impl AdventSolver for DayFive {
 }
 
 #[cfg(test)]
-bench! {20xx, 5, DayFive, year_20xx}
+bench! {2022, 2, DayTwo, year_2022}

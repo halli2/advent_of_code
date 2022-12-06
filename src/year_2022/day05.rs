@@ -1,5 +1,3 @@
-use std::cell::UnsafeCell;
-
 use arrayvec::ArrayVec;
 
 #[cfg(test)]
@@ -86,32 +84,30 @@ impl AdventSolver for DayFive {
 
     fn part_two(&self, input: &str) -> Solution {
         let (crates, instructions) = input.split_once("\n\n").unwrap();
-        let stacks: [UnsafeCell<CharVec>; 10] = Default::default();
+        let mut stacks: [CharVec; 10] = Default::default();
         for line in crates.lines().rev().skip(1) {
             // remove first `[`
             // index 1, 5, 9, 13 etc..
             for (index, char) in line.chars().skip(1).step_by(4).enumerate() {
                 if char != ' ' {
-                    unsafe {
-                        let inner: &mut CharVec = &mut *stacks[index + 1].get();
-                        inner.push(char);
-                    }
+                    stacks[index + 1].push(char);
                 }
             }
         }
         for instr in InstructionsParser::new(instructions.as_bytes().iter()) {
             unsafe {
-                let inner_from: &mut CharVec = &mut *stacks[instr.from as usize].get();
-                let inner_to: &mut CharVec = &mut *stacks[instr.to as usize].get();
-                let last = inner_from.len();
-                let values = inner_from.drain((last - instr.amount as usize)..);
-
-                inner_to.extend(values);
+                // let [from, to] = [instr.from, instr.to]
+                //     .map(|i| &mut *std::ptr::addr_of_mut!(stacks[i as usize]));
+                let from = &mut *std::ptr::addr_of_mut!(stacks[instr.from as usize]);
+                let to = &mut *std::ptr::addr_of_mut!(stacks[instr.to as usize]);
+                let last = from.len();
+                let values = from.drain((last - instr.amount as usize)..);
+                to.extend(values);
             }
         }
         let mut result = String::with_capacity(9);
-        for vec in stacks {
-            let stack: &mut CharVec = unsafe { &mut *vec.get() };
+        // for vec in stacks {
+        for stack in &mut stacks {
             if let Some(v) = stack.pop() {
                 result.push(v);
             }

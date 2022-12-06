@@ -14,24 +14,42 @@ fn dups(arr: &[u8]) -> bool {
     }
     false
 }
+#[inline(always)]
+fn xor_dups<const N: usize>(input: &[u8]) -> Solution {
+    let f = |b: u8| -> u32 { 1_u32 << (b % b'a') };
+    let mut masks = input[..N].iter().fold(0, |a, &b| a ^ f(b));
+    for (index, window) in input.windows(N + 1).enumerate() {
+        if masks.count_ones() == N as u32 {
+            return (index + N).into();
+        }
+        masks ^= f(window[N]) ^ f(window[0]);
+    }
+    Solution::Unsolved
+}
 
 impl AdventSolver for DaySix {
     fn part_one(&self, input: &str) -> Solution {
-        for (index, window) in input.as_bytes().windows(4).enumerate() {
+        const N: usize = 4;
+        let input = input.as_bytes();
+        for (index, window) in input.windows(N).enumerate() {
             if !dups(window) {
                 return (index + 4).into();
             }
         }
         Solution::Unsolved
+        // xor_dups::<N>(input)
     }
 
     fn part_two(&self, input: &str) -> Solution {
-        for (index, window) in input.as_bytes().windows(14).enumerate() {
-            if !dups(window) {
-                return (index + 14).into();
-            }
-        }
-        Solution::Unsolved
+        const N: usize = 14;
+        let input = input.as_bytes();
+        // for (index, window) in input.windows(N).enumerate() {
+        //     if !dups(window) {
+        //         return (index + 14).into();
+        //     }
+        // }
+        // Solution::Unsolved
+        xor_dups::<N>(input)
     }
 }
 

@@ -152,6 +152,9 @@ macro_rules! bench {
         mod benches {
             use std::fs;
 
+            // TODO: Remove $year_mod
+            // can just use super::$struct
+            // and $crate::AdventSolver, i think
             use test::{black_box, Bencher};
             use $crate::{$year_mod::$struct, AdventSolver};
 

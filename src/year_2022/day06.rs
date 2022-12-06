@@ -1,50 +1,34 @@
-use std::mem;
-
 #[cfg(test)]
 use crate::bench;
 use crate::{AdventSolver, Solution};
 pub struct DaySix {}
 
+#[inline(always)]
+fn dups(arr: &[u8]) -> bool {
+    for (ind, i) in arr.iter().enumerate() {
+        for j in &arr[(ind + 1)..] {
+            if i == j {
+                return true;
+            }
+        }
+    }
+    false
+}
+
 impl AdventSolver for DaySix {
     fn part_one(&self, input: &str) -> Solution {
-        let [mut one, mut two, mut three, mut four] = [' '; 4];
-        for (ind, character) in input.chars().enumerate() {
-            mem::swap(&mut four, &mut three);
-            mem::swap(&mut three, &mut two);
-            mem::swap(&mut two, &mut one);
-            one = character;
-            if one != two
-                && one != three
-                && one != four
-                && four != ' ' // First
-                && two != three
-                && two != four
-                && three != four
-            {
-                return (ind + 1).into();
+        for (index, window) in input.as_bytes().windows(4).enumerate() {
+            if !dups(window) {
+                return (index + 4).into();
             }
         }
         Solution::Unsolved
     }
 
     fn part_two(&self, input: &str) -> Solution {
-        let mut queue = [' '; 14];
-        for (ind, character) in input.chars().enumerate() {
-            for i in (1..14).rev() {
-                let value = queue[i - 1];
-                queue[i] = value;
-            }
-            queue[0] = character;
-            let mut dup = false;
-            for (ind, i) in queue.iter().enumerate() {
-                for j in &queue[(ind + 1)..] {
-                    if i == j {
-                        dup = true;
-                    }
-                }
-            }
-            if !dup && queue[13] != ' ' {
-                return (ind + 1).into();
+        for (index, window) in input.as_bytes().windows(14).enumerate() {
+            if !dups(window) {
+                return (index + 14).into();
             }
         }
         Solution::Unsolved

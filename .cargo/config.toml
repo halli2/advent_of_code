@@ -16,4 +16,5 @@ rustflags = [
   "-Aclippy::missing-panics-doc",
   "-Aclippy::unimplemented",
   "-Aclippy::todo",
+  "-Aclippy::inline-always"
 ]

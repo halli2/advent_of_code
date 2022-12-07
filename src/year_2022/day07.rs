@@ -40,9 +40,6 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for Parser<'a, T> {
     type Item = Cmd;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.0.is_empty() {
-            return None;
-        }
         let byte_1 = self.0.next()?;
         match byte_1 {
             b'$' => {

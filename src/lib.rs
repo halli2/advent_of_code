@@ -5,6 +5,7 @@
 #![feature(iter_array_chunks)]
 #![feature(test)]
 #![feature(slice_swap_unchecked)]
+#![feature(type_alias_impl_trait)]
 extern crate test;
 
 mod error;
@@ -25,6 +26,7 @@ pub enum Solution {
     U8(u8),
     U16(u16),
     U32(u32),
+    U64(u64),
     VecU32(Vec<u32>),
     Usize(usize),
     String(String),
@@ -97,6 +99,7 @@ impl std::fmt::Display for Solution {
             Solution::U8(v) => v.fmt(f),
             Solution::U16(v) => v.fmt(f),
             Solution::U32(v) => v.fmt(f),
+            Solution::U64(v) => v.fmt(f),
             Solution::VecU32(v) => {
                 for v in v {
                     write!(f, "{v} ")?;
@@ -126,6 +129,7 @@ from! {i32, I32}
 from! {u8, U8}
 from! {u16, U16}
 from! {u32, U32}
+from! {u64, U64}
 from! {String, String}
 
 impl From<&str> for Solution {

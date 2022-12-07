@@ -1,4 +1,4 @@
-use std::{iter::Peekable, str::Lines};
+use smallvec::SmallVec;
 
 #[cfg(test)]
 use crate::bench;
@@ -11,77 +11,134 @@ pub struct DaySeven {}
 // 123 abc (file abc has size 123)
 // dir xyz (cwd contains directory xyz)
 
-fn find_size(sum: &mut u32, lines: &mut Peekable<Lines<'_>>) -> u32 {
-    let mut dir_sum = 0;
-    while let Some(line) = lines.next() {
-        match line {
-            "$ cd .." => break,
-            "$ ls" => loop {
-                match lines.peek() {
-                    Some(v) if v.starts_with('$') => break,
-                    None => break,
-                    _ => {}
-                }
-                let l = lines.next().unwrap();
-                if !l.starts_with("dir") {
-                    let (v, _) = l.split_once(' ').unwrap();
-                    dir_sum += v.parse::<u32>().unwrap();
-                }
-            },
-            _ => {
-                dir_sum += find_size(sum, lines);
+struct Parser<'a, T: ExactSizeIterator<Item = &'a u8>>(T);
+
+impl<'a, T: ExactSizeIterator<Item = &'a u8>> Parser<'a, T> {
+    const fn new(iter: T) -> Self {
+        Self(iter)
+    }
+
+    #[inline(always)]
+    fn ln(&mut self) {
+        for v in self.0.by_ref() {
+            if *v == b'\n' {
+                break;
             }
         }
     }
-    if dir_sum <= 100_000 {
-        *sum += dir_sum;
-    }
-    dir_sum
 }
 
-fn find_small(sum: &mut u32, sum_of_dir: &mut Vec<u32>, lines: &mut Peekable<Lines<'_>>) -> u32 {
-    let mut dir_sum = 0;
-    while let Some(line) = lines.next() {
-        match line {
-            "$ cd .." => break,
-            "$ ls" => loop {
-                match lines.peek() {
-                    Some(v) if v.starts_with('$') => break,
-                    None => break,
-                    _ => {}
-                }
-                let l = lines.next().unwrap();
-                if !l.starts_with("dir") {
-                    let (v, _) = l.split_once(' ').unwrap();
-                    let val = v.parse::<u32>().unwrap();
-                    dir_sum += val;
-                    *sum += val;
-                }
-            },
+#[derive(Debug)]
+enum Cmd {
+    Break,
+    NewDir,
+    Pass,
+    Size(u32),
+}
+
+impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for Parser<'a, T> {
+    type Item = Cmd;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0.is_empty() {
+            return None;
+        }
+        let byte_1 = self.0.next()?;
+        match byte_1 {
+            b'$' => {
+                let cmd = match self.0.nth(1)? {
+                    b'c' => {
+                        if *self.0.nth(2)? == b'.' {
+                            self.0.nth(1)?;
+                            Cmd::Break
+                        } else {
+                            self.ln();
+                            Cmd::NewDir
+                        }
+                    }
+                    b'l' => {
+                        self.0.nth(1)?;
+                        Cmd::Pass
+                    }
+                    _ => unreachable!(),
+                };
+                Some(cmd)
+            } // command
+            b'd' => {
+                self.ln();
+                Some(Cmd::Pass)
+            } // dir
             _ => {
-                dir_sum += find_small(sum, sum_of_dir, lines);
+                let mut size = u32::from(byte_1 & 0x0f);
+                loop {
+                    let next_byte = self.0.next()?;
+                    if *next_byte == b' ' {
+                        break;
+                    }
+                    size = size
+                        .wrapping_mul(10)
+                        .wrapping_add(u32::from(next_byte & 0x0f));
+                }
+                // iter till end
+                self.ln();
+                Some(Cmd::Size(size))
+            } // size
+        }
+    }
+}
+
+fn parse<'a, T: ExactSizeIterator<Item = &'a u8>>(
+    sum: &mut u32,
+    parser: &mut Parser<'a, T>,
+) -> u32 {
+    let mut directory = 0;
+    while let Some(cmd) = parser.next() {
+        match cmd {
+            Cmd::Break => break,
+            Cmd::NewDir => directory += parse(sum, parser),
+            Cmd::Pass => {}
+            Cmd::Size(v) => directory += v,
+        }
+    }
+    if directory <= 100_000 {
+        *sum += directory;
+    }
+    directory
+}
+
+fn parse_small<'a, T: ExactSizeIterator<Item = &'a u8>>(
+    sum: &mut u32,
+    sum_of_dir: &mut SmallVec<[u32; 256]>,
+    parser: &mut Parser<'a, T>,
+) -> u32 {
+    let mut directory = 0;
+    while let Some(cmd) = parser.next() {
+        match cmd {
+            Cmd::Break => break,
+            Cmd::NewDir => directory += parse_small(sum, sum_of_dir, parser),
+            Cmd::Pass => {}
+            Cmd::Size(v) => {
+                directory += v;
+                *sum += v;
             }
         }
     }
-    sum_of_dir.push(dir_sum);
-    dir_sum
+    sum_of_dir.push(directory);
+    directory
 }
 
-#[allow(unused_must_use)]
 impl AdventSolver for DaySeven {
     fn part_one(&self, input: &str) -> Solution {
-        let mut lines = input.lines().peekable();
-        // let mut iter = Parser(input.as_bytes().iter());
+        let mut parser = Parser::new(input.as_bytes().iter());
         let mut sum = 0;
-        find_size(&mut sum, &mut lines);
+        parse(&mut sum, &mut parser);
         sum.into()
     }
-
     fn part_two(&self, input: &str) -> Solution {
-        let mut lines = input.lines().peekable();
+        let mut parser = Parser::new(input.as_bytes().iter());
         let mut sum = 0;
-        let mut sum_of_dir = Vec::with_capacity(200);
-        find_small(&mut sum, &mut sum_of_dir, &mut lines);
+        let mut sum_of_dir = SmallVec::new();
+        parse_small(&mut sum, &mut sum_of_dir, &mut parser);
         let space_needed = 70_000_000 - 30_000_000;
         let mut smallest = 30_000_000;
         for dir in sum_of_dir {
@@ -89,7 +146,6 @@ impl AdventSolver for DaySeven {
                 smallest = dir;
             }
         }
-        // panic!();
         smallest.into()
     }
 }

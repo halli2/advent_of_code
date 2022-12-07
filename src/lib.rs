@@ -1,8 +1,10 @@
+#![feature(slice_internals)]
 #![feature(array_windows)]
 #![feature(exact_size_is_empty)]
 #![feature(iter_collect_into)]
 #![feature(iter_array_chunks)]
 #![feature(test)]
+#![feature(slice_swap_unchecked)]
 extern crate test;
 
 mod error;
@@ -48,7 +50,6 @@ macro_rules! day {
 macro_rules! full_year {
     () => {
         day! {
-            0::day00::DayZero,
             1::day01::DayOne,
             2::day02::DayTwo,
             3::day03::DayThree,
@@ -80,12 +81,7 @@ macro_rules! full_year {
 
 pub mod year_2015 {
     //! Warm up for 2022
-    day! {
-        1::day01::DayOne,
-        2::day02::DayTwo,
-        3::day03::DayThree,
-        4::day04::DayFour
-    }
+    full_year! {}
 }
 
 pub mod year_2022 {

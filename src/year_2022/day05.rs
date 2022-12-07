@@ -1,3 +1,5 @@
+use core::slice;
+
 use arrayvec::ArrayVec;
 
 #[cfg(test)]
@@ -55,46 +57,66 @@ type CharVec = ArrayVec<char, 64>;
 
 impl AdventSolver for DayFive {
     fn part_one(&self, input: &str) -> Solution {
-        let (crates, instructions) = input.split_once("\n\n").unwrap();
+        let input = input.as_bytes();
+        let width = unsafe { slice::memchr::memchr(b'9', input).unwrap_unchecked() };
+        let (crates, instructions) = input.split_at(width + 3);
+        // let (crates, instructions) = input.split_once("\n\n").unwrap();
         let mut stacks: [CharVec; 10] = Default::default();
         // Want stack number first, and upper most crate last so reverse
-        for line in crates.lines().rev().skip(1) {
+        let width = unsafe { slice::memchr::memchr(b'\n', crates).unwrap_unchecked() };
+        for line in crates.chunks(width + 1).rev().skip(1) {
+            // for line in crates.lines().rev().skip(1) {
             // remove first `[`
             // index 1, 5, 9, 13 etc..
-            for (index, char) in line.chars().skip(1).step_by(4).enumerate() {
-                if char != ' ' {
-                    stacks[index + 1].push(char);
+            for (index, char) in line.iter().skip(1).step_by(4).enumerate() {
+                if *char != b' ' {
+                    stacks[index + 1].push(*char as char);
                 }
             }
         }
-        for instr in InstructionsParser::new(instructions.as_bytes().iter()) {
+        for instr in InstructionsParser::new(instructions.iter()) {
             for _ in 0..instr.amount {
                 let value = unsafe { stacks[instr.from as usize].pop().unwrap_unchecked() };
                 stacks[instr.to as usize].push(value);
             }
         }
-        let mut result = String::with_capacity(9);
-        for stack in &mut stacks {
-            if let Some(v) = stack.pop() {
-                result.push(v);
-            }
-        }
-        result.into()
+        stacks
+            .iter_mut()
+            .filter_map(ArrayVec::pop)
+            .collect::<String>()
+            .into()
     }
 
     fn part_two(&self, input: &str) -> Solution {
-        let (crates, instructions) = input.split_once("\n\n").unwrap();
+        let input = input.as_bytes();
+        let width = unsafe { slice::memchr::memchr(b'9', input).unwrap_unchecked() };
+        let (crates, instructions) = input.split_at(width + 3);
+        // let (crates, instructions) = input.split_once("\n\n").unwrap();
         let mut stacks: [CharVec; 10] = Default::default();
-        for line in crates.lines().rev().skip(1) {
+        // Want stack number first, and upper most crate last so reverse
+        let width = unsafe { slice::memchr::memchr(b'\n', crates).unwrap_unchecked() };
+        for line in crates.chunks(width + 1).rev().skip(1) {
+            // for line in crates.lines().rev().skip(1) {
             // remove first `[`
             // index 1, 5, 9, 13 etc..
-            for (index, char) in line.chars().skip(1).step_by(4).enumerate() {
-                if char != ' ' {
-                    stacks[index + 1].push(char);
+            for (index, char) in line.iter().skip(1).step_by(4).enumerate() {
+                if *char != b' ' {
+                    stacks[index + 1].push(*char as char);
                 }
             }
         }
-        for instr in InstructionsParser::new(instructions.as_bytes().iter()) {
+        // let (crates, instructions) = input.split_once("\n\n").unwrap();
+        // let mut stacks: [CharVec; 10] = Default::default();
+        // for line in crates.lines().rev().skip(1) {
+        //     // skip first `[`
+        //     // index 1, 5, 9, 13 etc..
+        //     for (index, char) in line.chars().skip(1).step_by(4).enumerate() {
+        //         if char != ' ' {
+        //             stacks[index + 1].push(char);
+        //         }
+        //     }
+        // }
+        for instr in InstructionsParser::new(instructions.iter()) {
             unsafe {
                 // let [from, to] = [instr.from, instr.to]
                 //     .map(|i| &mut *std::ptr::addr_of_mut!(stacks[i as usize]));
@@ -105,14 +127,11 @@ impl AdventSolver for DayFive {
                 to.extend(values);
             }
         }
-        let mut result = String::with_capacity(9);
-        // for vec in stacks {
-        for stack in &mut stacks {
-            if let Some(v) = stack.pop() {
-                result.push(v);
-            }
-        }
-        result.into()
+        stacks
+            .iter_mut()
+            .filter_map(ArrayVec::pop)
+            .collect::<String>()
+            .into()
     }
 }
 

@@ -3,6 +3,8 @@ use crate::bench;
 use crate::{AdventSolver, Solution};
 pub struct DaySix {}
 
+/// General way
+#[allow(dead_code)]
 #[inline(always)]
 fn dups(arr: &[u8]) -> bool {
     for (ind, i) in arr.iter().enumerate() {
@@ -14,42 +16,49 @@ fn dups(arr: &[u8]) -> bool {
     }
     false
 }
+
+/// Optimized way, only works when value types at most 32 and N at most 32
+// #[allow(dead_code)]
+// #[inline(always)]
+// fn xor_dups<const N: usize>(input: &[u8]) -> Solution {
+//     let mut mask: u32 = input[..N].iter().fold(0, |a, &byte| a ^ (1 << (byte % 32)));
+//     for (index, window) in input.windows(N + 1).enumerate() {
+//         if mask.count_ones() == N as u32 {
+//             return (index + N).into();
+//         }
+//         mask ^= (1 << (window[N] % 32)) ^ (1 << (window[0] % 32));
+//     }
+//     Solution::Unsolved
+// }
+#[allow(dead_code)]
 #[inline(always)]
-fn xor_dups<const N: usize>(input: &[u8]) -> Solution {
-    let f = |b: u8| -> u32 { 1_u32 << (b % b'a') };
-    let mut masks = input[..N].iter().fold(0, |a, &b| a ^ f(b));
-    for (index, window) in input.windows(N + 1).enumerate() {
-        if masks.count_ones() == N as u32 {
-            return (index + N).into();
-        }
-        masks ^= f(window[N]) ^ f(window[0]);
-    }
-    Solution::Unsolved
+fn xor_dups<const N: usize>(input: &[u8]) -> usize {
+    let mut mask: u32 = input[..N].iter().fold(0, |a, &byte| a ^ (1 << (byte % 32)));
+    input
+        .windows(N + 1)
+        .position(|window| {
+            if mask.count_ones() == N as u32 {
+                true
+            } else {
+                mask ^= (1 << (window[N] % 32)) ^ (1 << (window[0] % 32));
+                false
+            }
+        })
+        .unwrap()
+        + N
 }
 
 impl AdventSolver for DaySix {
     fn part_one(&self, input: &str) -> Solution {
         const N: usize = 4;
         let input = input.as_bytes();
-        for (index, window) in input.windows(N).enumerate() {
-            if !dups(window) {
-                return (index + 4).into();
-            }
-        }
-        Solution::Unsolved
-        // xor_dups::<N>(input)
+        (input.windows(N).position(|window| !dups(window)).unwrap() + N).into()
     }
 
     fn part_two(&self, input: &str) -> Solution {
         const N: usize = 14;
         let input = input.as_bytes();
-        // for (index, window) in input.windows(N).enumerate() {
-        //     if !dups(window) {
-        //         return (index + 14).into();
-        //     }
-        // }
-        // Solution::Unsolved
-        xor_dups::<N>(input)
+        xor_dups::<N>(input).into()
     }
 }
 

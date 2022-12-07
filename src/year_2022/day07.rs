@@ -17,7 +17,7 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Parser<'a, T> {
     const fn new(iter: T) -> Self {
         Self(iter)
     }
-
+    /// Iterate to end of line
     #[inline(always)]
     fn ln(&mut self) {
         for v in self.0.by_ref() {
@@ -30,10 +30,10 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Parser<'a, T> {
 
 #[derive(Debug)]
 enum Cmd {
-    Break,
-    NewDir,
+    ParentDir,
+    ChangeDir,
+    FileSize(u32),
     Pass,
-    Size(u32),
 }
 
 impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for Parser<'a, T> {
@@ -43,29 +43,36 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for Parser<'a, T> {
         let byte_1 = self.0.next()?;
         match byte_1 {
             b'$' => {
+                // Command
                 let cmd = match self.0.nth(1)? {
                     b'c' => {
+                        // cd
                         if *self.0.nth(2)? == b'.' {
+                            // cd ..
                             self.0.nth(1)?;
-                            Cmd::Break
+                            Cmd::ParentDir
                         } else {
+                            // cd <dir>
                             self.ln();
-                            Cmd::NewDir
+                            Cmd::ChangeDir
                         }
                     }
                     b'l' => {
+                        // ls
                         self.0.nth(1)?;
                         Cmd::Pass
                     }
                     _ => unreachable!(),
                 };
                 Some(cmd)
-            } // command
+            }
             b'd' => {
+                // dir <dir>
                 self.ln();
                 Some(Cmd::Pass)
-            } // dir
+            }
             _ => {
+                // size <file>
                 let mut size = u32::from(byte_1 & 0x0f);
                 loop {
                     let next_byte = self.0.next()?;
@@ -76,14 +83,76 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for Parser<'a, T> {
                         .wrapping_mul(10)
                         .wrapping_add(u32::from(next_byte & 0x0f));
                 }
-                // iter till end
                 self.ln();
-                Some(Cmd::Size(size))
-            } // size
+                Some(Cmd::FileSize(size))
+            }
         }
     }
 }
 
+impl AdventSolver for DaySeven {
+    fn part_one(&self, input: &str) -> Solution {
+        let parser = Parser::new(input.as_bytes().iter());
+        let mut stack = SmallVec::<[u32; 16]>::new();
+        let mut sum = 0;
+        for cmd in parser {
+            match cmd {
+                Cmd::ParentDir => {
+                    let dir_size = stack.pop().unwrap();
+                    if dir_size <= 100_000 {
+                        sum += dir_size;
+                    }
+                    *stack.last_mut().unwrap() += dir_size;
+                }
+                Cmd::ChangeDir => stack.push(0),
+                Cmd::FileSize(v) => *stack.last_mut().unwrap() += v,
+                Cmd::Pass => {}
+            }
+        }
+        let mut dir_size = 0;
+        while let Some(dir) = stack.pop() {
+            dir_size += dir;
+            if dir_size < 100_000 {
+                sum += dir_size;
+            }
+        }
+        sum.into()
+    }
+    fn part_two(&self, input: &str) -> Solution {
+        const NEEDED: u32 = 70_000_000 - 30_000_000;
+        let parser = Parser::new(input.as_bytes().iter());
+        let mut stack = SmallVec::<[u32; 16]>::new();
+        let mut dirs = SmallVec::<[u32; 256]>::new();
+        for cmd in parser {
+            match cmd {
+                Cmd::ParentDir => {
+                    let dir_size = stack.pop().unwrap();
+                    dirs.push(dir_size);
+                    *stack.last_mut().unwrap() += dir_size;
+                }
+                Cmd::ChangeDir => stack.push(0),
+                Cmd::FileSize(v) => *stack.last_mut().unwrap() += v,
+                Cmd::Pass => {}
+            }
+        }
+        let mut dir_size = 0;
+        while let Some(dir) = stack.pop() {
+            dir_size += dir;
+            dirs.push(dir_size);
+        }
+        let mut smallest = u32::MAX;
+        let sum = dirs.pop().unwrap(); // "/" will be the last dir
+        for dir in dirs {
+            if (sum - dir) < NEEDED && dir < smallest {
+                smallest = dir;
+            }
+        }
+        smallest.into()
+    }
+}
+
+// Parsing using recursion
+#[allow(unused)]
 fn parse<'a, T: ExactSizeIterator<Item = &'a u8>>(
     sum: &mut u32,
     parser: &mut Parser<'a, T>,
@@ -91,10 +160,10 @@ fn parse<'a, T: ExactSizeIterator<Item = &'a u8>>(
     let mut directory = 0;
     while let Some(cmd) = parser.next() {
         match cmd {
-            Cmd::Break => break,
-            Cmd::NewDir => directory += parse(sum, parser),
+            Cmd::ParentDir => break,
+            Cmd::ChangeDir => directory += parse(sum, parser),
+            Cmd::FileSize(v) => directory += v,
             Cmd::Pass => {}
-            Cmd::Size(v) => directory += v,
         }
     }
     if directory <= 100_000 {
@@ -103,6 +172,7 @@ fn parse<'a, T: ExactSizeIterator<Item = &'a u8>>(
     directory
 }
 
+#[allow(unused)]
 fn parse_small<'a, T: ExactSizeIterator<Item = &'a u8>>(
     sum: &mut u32,
     sum_of_dir: &mut SmallVec<[u32; 256]>,
@@ -111,20 +181,20 @@ fn parse_small<'a, T: ExactSizeIterator<Item = &'a u8>>(
     let mut directory = 0;
     while let Some(cmd) = parser.next() {
         match cmd {
-            Cmd::Break => break,
-            Cmd::NewDir => directory += parse_small(sum, sum_of_dir, parser),
-            Cmd::Pass => {}
-            Cmd::Size(v) => {
+            Cmd::ParentDir => break,
+            Cmd::ChangeDir => directory += parse_small(sum, sum_of_dir, parser),
+            Cmd::FileSize(v) => {
                 directory += v;
                 *sum += v;
             }
+            Cmd::Pass => {}
         }
     }
     sum_of_dir.push(directory);
     directory
 }
-
-impl AdventSolver for DaySeven {
+struct DaySevenRecursion {}
+impl AdventSolver for DaySevenRecursion {
     fn part_one(&self, input: &str) -> Solution {
         let mut parser = Parser::new(input.as_bytes().iter());
         let mut sum = 0;

@@ -1,4 +1,3 @@
-use core::slice;
 use std::cell::Cell;
 
 use crate::prelude::*;
@@ -8,7 +7,7 @@ impl AdventSolver for DayEight {
     fn part_one(&self, input: &str) -> Solution {
         const N: usize = 99;
         let trees = input.as_bytes();
-        let len = slice::memchr::memchr(b'\n', trees).unwrap();
+        let len = trees.memchr(b'\n');
         let width = len + 1;
         let mut grid = Array2D::new([false; N * N], N);
         let mut highest_up: [u8; N] = [0; N];
@@ -45,9 +44,7 @@ impl AdventSolver for DayEight {
 
     fn part_two(&self, input: &str) -> Solution {
         let trees = input.as_bytes();
-
         let len = trees.memchr(b'\n');
-        slice::memchr::memchr(b'\n', trees).unwrap();
         let width = len + 1;
         let mut high_score = 0;
         for i in 0..len {

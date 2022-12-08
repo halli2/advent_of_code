@@ -27,7 +27,9 @@ pub mod prelude {
 pub trait AdventSolver {
     fn part_one(&self, input: &str) -> Solution;
     fn part_two(&self, input: &str) -> Solution;
-    fn visualize(&self, _input: &str) {}
+    fn visualize(&self, input: &str) {
+        let _ = input;
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -156,9 +158,9 @@ impl From<Vec<u32>> for Solution {
     }
 }
 
-#[macro_export]
 #[cfg(test)]
-macro_rules! test {
+#[macro_export]
+macro_rules! test_impl {
     ($struct:ident, $solution1:tt, $solution2:tt, $input:tt) => {
         const INPUT: &str = $input;
         #[test]
@@ -173,6 +175,22 @@ macro_rules! test {
             let day = $struct {};
             assert_eq!(day.part_two(INPUT), answer);
         }
+    };
+}
+#[macro_export]
+#[cfg(test)]
+macro_rules! test {
+    ($struct:ident, $solution1:tt, $solution2:tt, $input:tt) => {
+        use $crate::test_impl;
+        test_impl! {$struct, $solution1, $solution2, $input}
+    };
+    ($struct:ident, $solution1:tt, $input:tt) => {
+        use $crate::{test_impl, Solution::Unsolved};
+        test_impl! {$struct, $solution1, Unsolved, $input}
+    };
+    ($struct:ident, $input:tt) => {
+        use $crate::{test_impl, Solution::Unsolved};
+        test_impl! {$struct, Unsolved, Unsolved, $input}
     };
 }
 

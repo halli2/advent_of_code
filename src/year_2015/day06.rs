@@ -1,6 +1,4 @@
-#[cfg(test)]
-use crate::bench;
-use crate::{AdventSolver, Solution};
+use crate::prelude::*;
 pub struct DaySix {}
 
 impl AdventSolver for DaySix {
@@ -14,4 +12,4 @@ impl AdventSolver for DaySix {
 }
 
 #[cfg(test)]
-bench! {2015, 6, DaySix, year_2015}
+bench! {2015, 6, DaySix}

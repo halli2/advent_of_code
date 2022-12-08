@@ -1,8 +1,6 @@
 use std::{cmp::Ordering, ops::Range};
 
-#[cfg(test)]
-use crate::bench;
-use crate::{AdventSolver, Solution};
+use crate::prelude::*;
 pub struct DayFour {}
 
 #[allow(dead_code)]
@@ -187,7 +185,7 @@ impl AdventSolver for DayFour {
 }
 
 #[cfg(test)]
-bench! {2022, 4, DayFour, year_2022, Solution::Usize(496), Solution::Usize(847)}
+bench! {2022, 4, DayFour, Solution::Usize(496), Solution::Usize(847)}
 
 #[cfg(test)]
 mod tests {

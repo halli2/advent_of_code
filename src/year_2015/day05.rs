@@ -1,6 +1,4 @@
-#[cfg(test)]
-use crate::bench;
-use crate::{AdventSolver, Solution};
+use crate::prelude::*;
 pub struct DayFive {}
 
 const VOWELS: [char; 5] = ['a', 'e', 'i', 'o', 'u'];
@@ -29,4 +27,4 @@ impl AdventSolver for DayFive {
 }
 
 #[cfg(test)]
-bench! {2015, 5, DayFive, year_2015}
+bench! {2015, 5, DayFive}

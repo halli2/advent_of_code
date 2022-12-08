@@ -2,9 +2,7 @@ use core::slice;
 
 use arrayvec::ArrayVec;
 
-#[cfg(test)]
-use crate::bench;
-use crate::{AdventSolver, Solution};
+use crate::prelude::*;
 pub struct DayFive {}
 
 struct InstructionsParser<'a, T: ExactSizeIterator<Item = &'a u8>>(T);
@@ -136,7 +134,7 @@ impl AdventSolver for DayFive {
 }
 
 #[cfg(test)]
-bench! {2022, 5, DayFive, year_2022, Solution::String("JCMHLVGMG".to_owned()), Solution::String("LVMRWSSPZ".to_owned())}
+bench! {2022, 5, DayFive, Solution::String("JCMHLVGMG".to_owned()), Solution::String("LVMRWSSPZ".to_owned())}
 
 #[cfg(test)]
 mod tests {

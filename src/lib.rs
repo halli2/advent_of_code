@@ -8,9 +8,21 @@
 #![feature(type_alias_impl_trait)]
 extern crate test;
 
+pub mod array;
 mod error;
 pub mod gpu;
 pub mod parser;
+
+pub mod prelude {
+    pub use std::ops::{Index, IndexMut};
+
+    pub use crate::{
+        array::{Array2D, Vec2D},
+        AdventSolver, Solution,
+    };
+    #[cfg(test)]
+    pub use crate::{bench, test};
+}
 
 pub trait AdventSolver {
     fn part_one(&self, input: &str) -> Solution;
@@ -146,68 +158,81 @@ impl From<Vec<u32>> for Solution {
 
 #[macro_export]
 #[cfg(test)]
-/// `bench {2022, 1, DayOne, year_2022, (answer_1), (answer_2)}`
-macro_rules! bench {
-    ($year:literal, $day:tt, $struct:ident, $year_mod:ident) => {
-        mod benches {
-            use std::fs;
-
-            // TODO: Remove $year_mod
-            // can just use super::$struct
-            // and $crate::AdventSolver, i think
-            use test::{black_box, Bencher};
-            use $crate::{$year_mod::$struct, AdventSolver};
-
-            #[bench]
-            fn part1(b: &mut Bencher) {
-                let content =
-                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
-                let day = $struct {};
-                b.iter(|| {
-                    day.part_one(black_box(&content));
-                })
-            }
-
-            #[bench]
-            fn part2(b: &mut Bencher) {
-                let content =
-                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
-                let day = $struct {};
-                b.iter(|| {
-                    day.part_two(black_box(&content));
-                })
-            }
+macro_rules! test {
+    ($struct:ident, $solution1:tt, $solution2:tt, $input:tt) => {
+        const INPUT: &str = $input;
+        #[test]
+        fn test_part1() {
+            let answer: Solution = $solution1.into();
+            let day = $struct {};
+            assert_eq!(day.part_one(INPUT), answer);
+        }
+        #[test]
+        fn test_part2() {
+            let answer: Solution = $solution2.into();
+            let day = $struct {};
+            assert_eq!(day.part_two(INPUT), answer);
         }
     };
-    ($year:literal, $day:tt, $struct:ident, $year_mod:ident, $answer_1:expr, $answer_2:expr) => {
-        mod benches {
+}
+
+#[macro_export]
+#[cfg(test)]
+/// `bench {2022, 1, DayOne, year_2022, (answer_1), (answer_2)}`
+macro_rules! bench {
+    ($year:literal, $day:tt, $struct:ident) => {
+        use test::{black_box, Bencher};
+
+        #[bench]
+        fn bench_part1(b: &mut Bencher) {
             use std::fs;
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                day.part_one(black_box(&content));
+            })
+        }
 
-            use test::{black_box, Bencher};
-            use $crate::{$year_mod::$struct, AdventSolver, Solution};
+        #[bench]
+        fn bench_part2(b: &mut Bencher) {
+            use std::fs;
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                day.part_two(black_box(&content));
+            })
+        }
+    };
+    ($year:literal, $day:tt, $struct:ident, $answer_1:expr, $answer_2:expr) => {
+        use test::{black_box, Bencher};
 
-            #[bench]
-            fn part1(b: &mut Bencher) {
-                let content =
-                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
-                let day = $struct {};
-                b.iter(|| {
-                    black_box(day.part_one(black_box(&content)));
-                });
-                let answer = day.part_one(&content);
-                assert_eq!($answer_1, answer);
-            }
-            #[bench]
-            fn part2(b: &mut Bencher) {
-                let content =
-                    fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
-                let day = $struct {};
-                b.iter(|| {
-                    black_box(day.part_two(black_box(&content)));
-                });
-                let answer = day.part_two(&content);
-                assert_eq!($answer_2, answer);
-            }
+        #[bench]
+        fn bench_part1(b: &mut Bencher) {
+            use std::fs;
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                black_box(day.part_one(black_box(&content)));
+            });
+            let answer: Solution = $answer_1.into();
+            let result = day.part_one(&content);
+            assert_eq!(answer, result);
+        }
+        #[bench]
+        fn bench_part2(b: &mut Bencher) {
+            use std::fs;
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                black_box(day.part_two(black_box(&content)));
+            });
+            let answer: Solution = $answer_2.into();
+            let result = day.part_two(&content);
+            assert_eq!(answer, result);
         }
     };
 }

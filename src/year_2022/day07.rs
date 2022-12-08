@@ -1,8 +1,6 @@
 use smallvec::SmallVec;
 
-#[cfg(test)]
-use crate::bench;
-use crate::{AdventSolver, Solution};
+use crate::prelude::*;
 pub struct DaySeven {}
 
 // $ - command
@@ -218,7 +216,7 @@ impl AdventSolver for DaySevenRecursion {
 }
 
 #[cfg(test)]
-bench! {2022, 7, DaySeven, year_2022, Solution::U32(1_749_646), Solution::U32(1_498_966)}
+bench! {2022, 7, DaySeven, Solution::U32(1_749_646), Solution::U32(1_498_966)}
 
 #[cfg(test)]
 mod tests {

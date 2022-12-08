@@ -7,9 +7,20 @@ pub struct Vec2D<T> {
     stride: usize,
 }
 
+pub trait FastIndex<Idx: ?Sized> {
+    type Output;
+    fn get_unchecked_mut(&mut self, x: Idx, y: Idx) -> &mut Self::Output;
+}
+
 pub struct Array2D<const N: usize, T> {
     pub inner: [T; N],
     stride: usize,
+}
+
+impl<const N: usize, T> Array2D<N, T> {
+    pub const fn new(inner: [T; N], stride: usize) -> Self {
+        Self { inner, stride }
+    }
 }
 
 impl<T> Vec2D<T> {
@@ -18,12 +29,6 @@ impl<T> Vec2D<T> {
             inner: Vec::new(),
             stride,
         }
-    }
-}
-
-impl<const N: usize, T> Array2D<N, T> {
-    pub const fn new(inner: [T; N], stride: usize) -> Self {
-        Self { inner, stride }
     }
 }
 
@@ -43,6 +48,16 @@ macro_rules! index {
                 &mut self.inner[(index.0 as usize * self.stride + index.1 as usize)]
             }
         }
+
+
+        impl<T> FastIndex<$ty> for $for<T> {
+            type Output = T;
+
+            #[inline(always)]
+            fn get_unchecked_mut(&mut self, x: $ty, y: $ty) -> &mut Self::Output {
+                unsafe { self.inner.get_unchecked_mut(x as usize * self.stride + y as usize) }
+            }
+        }
     }
 }
 
@@ -60,6 +75,15 @@ macro_rules! const_index {
         impl<const N: usize, T> IndexMut<($ty, $ty)> for $for<N, T> {
             fn index_mut(&mut self, index: ($ty, $ty)) -> &mut Self::Output {
                 &mut self.inner[(index.0 as usize * self.stride + index.1 as usize)]
+            }
+        }
+
+        impl<const N: usize, T> FastIndex<$ty> for $for<N, T> {
+            type Output = T;
+
+            #[inline(always)]
+            fn get_unchecked_mut(&mut self, x: $ty, y: $ty) -> &mut Self::Output {
+                unsafe { self.inner.get_unchecked_mut(x as usize * self.stride + y as usize) }
             }
         }
     }

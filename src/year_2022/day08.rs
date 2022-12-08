@@ -18,22 +18,26 @@ impl AdventSolver for DayEight {
             for j in 0..len {
                 let tree = trees[i * width + j];
                 if tree > highest_left {
-                    *grid.index_mut((i, j)) = true;
+                    *grid.get_unchecked_mut(i, j) = true;
+                    // *grid.index_mut((i, j)) = true;
                     highest_left = tree;
                 }
                 if tree > highest_up[j] {
-                    *grid.index_mut((i, j)) = true;
+                    *grid.get_unchecked_mut(i, j) = true;
+                    // *grid.index_mut((i, j)) = true;
                     highest_up[j] = tree;
                 }
 
                 let tree = trees[(len - i - 1) * width + j];
                 if tree > highest_down[j] {
-                    *grid.index_mut((len - i - 1, j)) = true;
+                    *grid.get_unchecked_mut(len - i - 1, j) = true;
+                    // *grid.index_mut((len - i - 1, j)) = true;
                     highest_down[j] = tree;
                 }
                 let tree = trees[i * width + len - j - 1];
                 if tree > highest_right {
-                    *grid.index_mut((i, len - j - 1)) = true;
+                    *grid.get_unchecked_mut(i, len - j - 1) = true;
+                    // *grid.index_mut((i, len - j - 1)) = true;
                     highest_right = tree;
                 }
             }
@@ -49,39 +53,41 @@ impl AdventSolver for DayEight {
         let mut high_score = 0;
         for i in 0..len {
             for j in 0..len {
-                let current_tree = trees[i * width + j];
+                unsafe {
+                    let current_tree = trees.get_unchecked(i * width + j);
 
-                let done = Cell::new(false);
-                let f = |tree: u8| -> bool {
-                    if done.get() {
-                        done.set(false);
-                        return false;
-                    }
-                    if tree >= current_tree {
-                        done.set(true);
-                    }
-                    true
-                };
-                // Sweep Up
-                let mut score = (0..i)
-                    .rev()
-                    .take_while(|l| f(trees[*l * width + j]))
-                    .count();
-                // Sweep Down
-                score *= ((i + 1)..len)
-                    .take_while(|l| f(trees[*l * width + j]))
-                    .count();
-                // Sweep Left
-                score *= (0..j)
-                    .rev()
-                    .take_while(|l| f(trees[i * width + *l]))
-                    .count();
-                // Sweep Right
-                score *= ((j + 1)..len)
-                    .take_while(|l| f(trees[i * width + *l]))
-                    .count();
+                    let done = Cell::new(false);
+                    let f = |tree: &u8| -> bool {
+                        if done.get() {
+                            done.set(false);
+                            return false;
+                        }
+                        if tree >= current_tree {
+                            done.set(true);
+                        }
+                        true
+                    };
+                    // Sweep Up
+                    let mut score = (0..i)
+                        .rev()
+                        .take_while(|l| f(trees.get_unchecked(*l * width + j)))
+                        .count();
+                    // Sweep Down
+                    score *= ((i + 1)..len)
+                        .take_while(|l| f(trees.get_unchecked(*l * width + j)))
+                        .count();
+                    // Sweep Left
+                    score *= (0..j)
+                        .rev()
+                        .take_while(|l| f(trees.get_unchecked(i * width + *l)))
+                        .count();
+                    // Sweep Right
+                    score *= ((j + 1)..len)
+                        .take_while(|l| f(trees.get_unchecked(i * width + *l)))
+                        .count();
 
-                high_score = high_score.max(score);
+                    high_score = high_score.max(score);
+                }
             }
         }
         high_score.into()

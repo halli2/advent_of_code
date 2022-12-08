@@ -17,11 +17,7 @@ pub mod utils;
 pub mod prelude {
     pub use std::ops::{Index, IndexMut};
 
-    pub use crate::{
-        array::{Array2D, Vec2D},
-        utils::*,
-        AdventSolver, Solution,
-    };
+    pub use crate::{array::*, utils::*, AdventSolver, Solution};
     #[cfg(test)]
     pub use crate::{bench, test};
 }

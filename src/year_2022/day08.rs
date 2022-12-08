@@ -45,7 +45,9 @@ impl AdventSolver for DayEight {
 
     fn part_two(&self, input: &str) -> Solution {
         let trees = input.as_bytes();
-        let len = slice::memchr::memchr(b'\n', trees).unwrap();
+
+        let len = trees.memchr(b'\n');
+        slice::memchr::memchr(b'\n', trees).unwrap();
         let width = len + 1;
         let mut high_score = 0;
         for i in 0..len {

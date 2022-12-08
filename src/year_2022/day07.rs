@@ -72,6 +72,7 @@ impl<'a, T: ExactSizeIterator<Item = &'a u8>> Iterator for Parser<'a, T> {
             _ => {
                 // size <file>
                 let mut size = u32::from(byte_1 & 0x0f);
+                // let size = atoi_with_first_byte::<u32, 1, 10>(&mut self.0, byte_1);
                 loop {
                     let next_byte = self.0.next()?;
                     if *next_byte == b' ' {

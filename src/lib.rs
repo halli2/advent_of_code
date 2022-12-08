@@ -12,12 +12,14 @@ pub mod array;
 mod error;
 pub mod gpu;
 pub mod parser;
+pub mod utils;
 
 pub mod prelude {
     pub use std::ops::{Index, IndexMut};
 
     pub use crate::{
         array::{Array2D, Vec2D},
+        utils::*,
         AdventSolver, Solution,
     };
     #[cfg(test)]

@@ -6,6 +6,8 @@
 #![feature(test)]
 #![feature(slice_swap_unchecked)]
 #![feature(type_alias_impl_trait)]
+#![feature(array_chunks)]
+#![feature(unchecked_math)]
 extern crate test;
 
 pub mod array;
@@ -177,6 +179,7 @@ macro_rules! test_impl {
 }
 #[macro_export]
 #[cfg(test)]
+/// `test! {DayX, (solution_!), (solution2), input}`
 macro_rules! test {
     ($struct:ident, $solution1:tt, $solution2:tt, $input:tt) => {
         use $crate::test_impl;

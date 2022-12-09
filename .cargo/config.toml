@@ -11,6 +11,7 @@ rustflags = [
   "-Aclippy::too-many-lines",
   "-Aclippy::uninlined-format-args",
   "-Aclippy::cast-possible-truncation",
+  "-Aclippy::cast-possible-wrap",
   "-Aclippy::use-self",
   "-Aclippy::missing-errors-doc",
   "-Aclippy::missing-panics-doc",

@@ -161,19 +161,20 @@ impl From<Vec<u32>> for Solution {
 #[cfg(test)]
 #[macro_export]
 macro_rules! test_impl {
-    ($struct:ident, $solution1:tt, $solution2:tt, $input:tt) => {
-        const INPUT: &str = $input;
+    ($struct:ident, $solution1:tt, $solution2:tt, $input1:tt, $input2:tt) => {
+        const INPUT1: &str = $input1;
+        const INPUT2: &str = $input2;
         #[test]
         fn test_part1() {
             let answer: Solution = $solution1.into();
             let day = $struct {};
-            assert_eq!(day.part_one(INPUT), answer);
+            assert_eq!(day.part_one(INPUT1), answer);
         }
         #[test]
         fn test_part2() {
             let answer: Solution = $solution2.into();
             let day = $struct {};
-            assert_eq!(day.part_two(INPUT), answer);
+            assert_eq!(day.part_two(INPUT2), answer);
         }
     };
 }
@@ -181,17 +182,21 @@ macro_rules! test_impl {
 #[cfg(test)]
 /// `test! {DayX, (solution_!), (solution2), input}`
 macro_rules! test {
-    ($struct:ident, $solution1:tt, $solution2:tt, $input:tt) => {
+    ($struct:ident, $solution1:tt, $solution2:tt, $input1:tt, $input2:tt) => {
         use $crate::test_impl;
-        test_impl! {$struct, $solution1, $solution2, $input}
+        test_impl! {$struct, $solution1, $solution2, $input1, $input2}
+    };
+    ($struct:ident, $solution1:tt, $solution2:tt, $input1:tt) => {
+        use $crate::test_impl;
+        test_impl! {$struct, $solution1, $solution2, $input1, $input1}
     };
     ($struct:ident, $solution1:tt, $input:tt) => {
         use $crate::{test_impl, Solution::Unsolved};
-        test_impl! {$struct, $solution1, Unsolved, $input}
+        test_impl! {$struct, $solution1, Unsolved, $input, $input}
     };
     ($struct:ident, $input:tt) => {
         use $crate::{test_impl, Solution::Unsolved};
-        test_impl! {$struct, Unsolved, Unsolved, $input}
+        test_impl! {$struct, Unsolved, Unsolved, $input, $input}
     };
 }
 

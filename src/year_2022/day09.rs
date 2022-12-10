@@ -63,16 +63,44 @@ impl AdventSolver for DayNine {
         visited.len().into()
     }
 
-    fn part_two(&self, _input: &str) -> Solution {
-        todo!()
+    fn part_two(&self, input: &str) -> Solution {
+        let motions = input.as_bytes();
+        let mut visited = Vec::with_capacity(2048);
+
+        // index 0 is head, index 9 is tails
+        let mut knots = [(0, 0); 10];
+        visited.push(knots[9]);
+
+        Parser(motions.iter()).for_each(|motion| {
+            knots[0].0 += unsafe { i32::from(motion.0.unchecked_mul(motion.2 as i8)) };
+            knots[0].1 += unsafe { i32::from(motion.1.unchecked_mul(motion.2 as i8)) };
+            for _ in 0..motion.2 {
+                let old = unsafe { knots.last().copied().unwrap_unchecked() };
+                for i in 1..knots.len() {
+                    let (x, y) = (knots[i - 1].0 - knots[i].0, knots[i - 1].1 - knots[i].1);
+                    if x.abs() > 1 || y.abs() > 1 {
+                        knots[i].0 += x.signum();
+                        knots[i].1 += y.signum();
+                    }
+                }
+                let new = unsafe { knots.last().copied().unwrap_unchecked() };
+                if new != old {
+                    visited.push(new);
+                }
+            }
+        });
+
+        visited.sort_unstable();
+        visited.dedup();
+        visited.len().into()
     }
 }
 
 #[cfg(test)]
-bench! {2022, 9, DayNine, 5960_usize, 0_usize}
+bench! {2022, 9, DayNine, 5960_usize, 2327_usize}
 
 #[cfg(test)]
-test! {DayNine, 13_usize, "\
+test! {DayNine, 13_usize, 36_usize, "\
 R 4
 U 4
 L 3
@@ -81,4 +109,13 @@ R 4
 D 1
 L 5
 R 2
+", "\
+R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20
 "}

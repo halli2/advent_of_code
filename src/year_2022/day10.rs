@@ -51,7 +51,7 @@ impl AdventSolver for DayTen {
     fn part_two(&self, input: &str) -> Solution {
         let mut cycle = 0;
         let mut row = 0;
-        let mut pixels = ['.'; 240];
+        let mut pixels = [' '; 240];
 
         let mut f = |register: i32| {
             if [cycle - 1, cycle, cycle + 1].contains(&register) {

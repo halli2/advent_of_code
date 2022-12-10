@@ -12,6 +12,8 @@ rustflags = [
   "-Aclippy::uninlined-format-args",
   "-Aclippy::cast-possible-truncation",
   "-Aclippy::cast-possible-wrap",
+  "-Aclippy::cast-lossless",
+  "-Aclippy::cast-sign-loss",
   "-Aclippy::use-self",
   "-Aclippy::missing-errors-doc",
   "-Aclippy::missing-panics-doc",

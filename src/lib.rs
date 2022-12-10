@@ -8,6 +8,8 @@
 #![feature(type_alias_impl_trait)]
 #![feature(array_chunks)]
 #![feature(unchecked_math)]
+#![feature(const_mut_refs)]
+#![feature(const_fmt_arguments_new)]
 extern crate test;
 
 pub mod array;
@@ -42,6 +44,8 @@ pub enum Solution {
     U32(u32),
     U64(u64),
     VecU32(Vec<u32>),
+    VecI32(Vec<i32>),
+    Vec2DChar(Vec<Vec<char>>),
     Usize(usize),
     String(String),
     Unsolved,
@@ -120,6 +124,21 @@ impl std::fmt::Display for Solution {
                 }
                 Ok(())
             }
+            Solution::VecI32(v) => {
+                for v in v {
+                    write!(f, "{v} ")?;
+                }
+                Ok(())
+            }
+            Solution::Vec2DChar(v) => {
+                for row in v {
+                    for col in row {
+                        write!(f, "{col}")?;
+                    }
+                    writeln!(f)?;
+                }
+                Ok(())
+            }
             Solution::Usize(v) => v.fmt(f),
             Solution::String(v) => v.fmt(f),
             Solution::Unsolved => write!(f, "Something wrong happened, problem not solved"),
@@ -155,6 +174,16 @@ impl From<&str> for Solution {
 impl From<Vec<u32>> for Solution {
     fn from(v: Vec<u32>) -> Self {
         Self::VecU32(v)
+    }
+}
+impl From<Vec<i32>> for Solution {
+    fn from(v: Vec<i32>) -> Self {
+        Self::VecI32(v)
+    }
+}
+impl From<Vec<Vec<char>>> for Solution {
+    fn from(v: Vec<Vec<char>>) -> Self {
+        Self::Vec2DChar(v)
     }
 }
 

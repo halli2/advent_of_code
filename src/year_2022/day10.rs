@@ -1,10 +1,10 @@
 use crate::prelude::*;
 pub struct DayTen {}
 
-const fn check_register(check: &mut i32, register: i32) -> i32 {
-    *check += 1;
-    if *check % 40 == 0 {
-        (*check - 20) * register
+const fn check_register(cycle: &mut i32, register: i32) -> i32 {
+    *cycle += 1;
+    if *cycle % 40 == 0 {
+        (*cycle - 20) * register
     } else {
         0
     }
@@ -55,11 +55,11 @@ fn iterate<F: FnMut(i32)>(input: &str, f: &mut F) {
 
 impl AdventSolver for DayTen {
     fn part_one(&self, input: &str) -> Solution {
-        let mut check = 20;
+        let mut cycle = 20;
         let mut res: i32 = 0;
 
         let mut f = |register: i32| {
-            res += check_register(&mut check, register);
+            res += check_register(&mut cycle, register);
         };
 
         iterate(input, &mut f);

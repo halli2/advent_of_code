@@ -258,6 +258,33 @@ macro_rules! bench {
             })
         }
     };
+    ($year:literal, $day:tt, $struct:ident, $answer_1:expr) => {
+        use test::{black_box, Bencher};
+
+        #[bench]
+        fn bench_part1(b: &mut Bencher) {
+            use std::fs;
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                black_box(day.part_one(black_box(&content)));
+            });
+            let answer: Solution = $answer_1.into();
+            let result = day.part_one(&content);
+            assert_eq!(answer, result);
+        }
+        #[bench]
+        fn bench_part2(b: &mut Bencher) {
+            use std::fs;
+            let content =
+                fs::read_to_string(format!("./data/{}/day{:0>2}.txt", $year, $day)).unwrap();
+            let day = $struct {};
+            b.iter(|| {
+                black_box(day.part_two(black_box(&content)));
+            });
+        }
+    };
     ($year:literal, $day:tt, $struct:ident, $answer_1:expr, $answer_2:expr) => {
         use test::{black_box, Bencher};
 

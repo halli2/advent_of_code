@@ -7,25 +7,33 @@ fn iterate<F: FnMut(i32)>(input: &str, f: &mut F) {
     while let Some(op) = instr.next() {
         if *op == b'a' {
             // Add
-            let mut value = (instr.nth(4).unwrap() & 0x0f) as i8;
-            if value > 10 {
-                value = -((instr.next().unwrap() & 0x0f) as i8);
-                let next = instr.next().unwrap();
-                if *next != b'\n' {
-                    value = value * 10 - (next & 0x0f) as i8;
-                    instr.next().unwrap();
+            let value = match *instr.nth(4).unwrap() {
+                // Negative number
+                val if val == b'-' => {
+                    let mut v = -((instr.next().unwrap() & 0x0f) as i8);
+                    let next = instr.next().unwrap();
+                    if *next != b'\n' {
+                        v = v * 10 - (next & 0x0f) as i8;
+                        instr.next().unwrap();
+                    }
+                    v
                 }
-            } else {
-                let next = instr.next().unwrap();
-                if *next != b'\n' {
-                    value = value * 10 + (next & 0x0f) as i8;
-                    instr.next().unwrap();
+                // Positive number
+                val => {
+                    let mut v = (val & 0x0f) as i8;
+                    let next = instr.next().unwrap();
+                    if *next != b'\n' {
+                        v = v * 10 + (next & 0x0f) as i8;
+                        instr.next().unwrap();
+                    }
+                    v
                 }
-            }
+            };
             f(register);
             f(register);
             register += value as i32;
         } else {
+            // Noop
             instr.nth(3).unwrap();
             f(register);
         }

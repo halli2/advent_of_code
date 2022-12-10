@@ -1,27 +1,6 @@
 use crate::prelude::*;
 pub struct DayTen {}
 
-const fn check_register(cycle: &mut i32, register: i32) -> i32 {
-    *cycle += 1;
-    if *cycle % 40 == 0 {
-        (*cycle - 20) * register
-    } else {
-        0
-    }
-}
-
-#[inline(always)]
-fn draw(cycle: &mut i32, row: &mut usize, register: i32, pixels: &mut [char; 240]) {
-    if [*cycle - 1, *cycle, *cycle + 1].contains(&register) {
-        pixels[*cycle as usize + (*row * 40)] = '#';
-    }
-    *cycle += 1;
-    if *cycle == 40 {
-        *cycle = 0;
-        *row += 1;
-    }
-}
-
 fn iterate<F: FnMut(i32)>(input: &str, f: &mut F) {
     let mut instr = input.as_bytes().iter();
     let mut register = 1;
@@ -59,7 +38,10 @@ impl AdventSolver for DayTen {
         let mut res: i32 = 0;
 
         let mut f = |register: i32| {
-            res += check_register(&mut cycle, register);
+            cycle += 1;
+            if cycle % 40 == 0 {
+                res += (cycle - 20) * register;
+            }
         };
 
         iterate(input, &mut f);
@@ -72,7 +54,14 @@ impl AdventSolver for DayTen {
         let mut pixels = ['.'; 240];
 
         let mut f = |register: i32| {
-            draw(&mut cycle, &mut row, register, &mut pixels);
+            if [cycle - 1, cycle, cycle + 1].contains(&register) {
+                pixels[cycle as usize + (row * 40)] = '#';
+            }
+            cycle += 1;
+            if cycle == 40 {
+                cycle = 0;
+                row += 1;
+            }
         };
 
         iterate(input, &mut f);

@@ -10,6 +10,7 @@
 #![feature(unchecked_math)]
 #![feature(const_mut_refs)]
 #![feature(const_fmt_arguments_new)]
+#![feature(unboxed_closures)]
 extern crate test;
 
 pub mod array;

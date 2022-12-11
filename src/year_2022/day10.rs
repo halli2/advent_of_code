@@ -58,26 +58,23 @@ impl AdventSolver for DayTen {
 
     fn part_two(&self, input: &str) -> Solution {
         let mut cycle = 0;
-        let mut row = 0;
-        let mut pixels = [' '; 240];
+        let mut pixels = String::with_capacity(256);
 
         let mut f = |register: i32| {
-            if [cycle - 1, cycle, cycle + 1].contains(&register) {
-                pixels[cycle as usize + (row * 40)] = '#';
+            if (cycle - register).abs() < 2 {
+                pixels.push('#');
+            } else {
+                pixels.push(' ');
             }
             cycle += 1;
             if cycle == 40 {
+                pixels.push('\n');
                 cycle = 0;
-                row += 1;
             }
         };
 
         iterate(input, &mut f);
-        pixels
-            .chunks(40)
-            .map(<[char]>::to_vec)
-            .collect::<Vec<Vec<_>>>()
-            .into()
+        pixels.into()
     }
 }
 

@@ -137,7 +137,7 @@ impl AdventSolver for DayEleven {
         for _ in 0..10000 {
             for i in 0..monkey_len {
                 let monkey = unsafe { &mut *std::ptr::addr_of_mut!(monkeys[i]) };
-                // monkey.items.reverse();
+                monkey.items.reverse();
                 monkey.inspections += monkey.items.len() as u64;
                 for _ in 0..monkey.items.len() {
                     let mut level = unsafe { monkey.items.pop().unwrap_unchecked() };

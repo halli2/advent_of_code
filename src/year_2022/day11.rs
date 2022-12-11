@@ -1,34 +1,33 @@
-use std::{sync::Arc, thread};
+use std::thread;
+
+use arrayvec::ArrayVec;
 
 use crate::prelude::*;
 pub struct DayEleven {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 enum Op {
     Add(u64),
     Mul(u64),
     Square,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Monkey {
     pub op: Op,
     pub diviser: u64,
     pub if_true: usize,
     pub if_false: usize,
-    pub inspections: u64,
 }
 
 #[inline(always)]
-fn collect_monkeys(input: &str) -> (Vec<Monkey>, Vec<(u64, usize)>) {
+fn collect_monkeys(input: &str) -> (ArrayVec<Monkey, 8>, ArrayVec<(u64, usize), 64>) {
     let mut iter = input.as_bytes().iter();
-    let mut monkeys: Vec<Monkey> = Vec::with_capacity(8);
-    let mut items: Vec<(u64, usize)> = Vec::new();
+    let mut monkeys = ArrayVec::<Monkey, 8>::new();
+    let mut items = ArrayVec::<(u64, usize), 64>::new();
 
     unsafe {
         for i in 0..8 {
-            // Collect starting values
-            // let mut items = Vec::new();
             iter.nth(27).unwrap_unchecked();
             let val = ((iter.next().unwrap_unchecked() & 0x0f) * 10
                 + (iter.next().unwrap_unchecked() & 0x0f)) as u64;
@@ -91,7 +90,6 @@ fn collect_monkeys(input: &str) -> (Vec<Monkey>, Vec<(u64, usize)>) {
                 diviser,
                 if_true,
                 if_false,
-                inspections: 0,
             });
         }
     }
@@ -100,11 +98,12 @@ fn collect_monkeys(input: &str) -> (Vec<Monkey>, Vec<(u64, usize)>) {
 impl AdventSolver for DayEleven {
     fn part_one(&self, input: &str) -> Solution {
         let (mut monkeys, mut items) = collect_monkeys(input);
+        let mut inspections = [0_u64; 8];
         for _ in 0..20 {
             for item in &mut items {
                 loop {
                     let monkey = unsafe { monkeys.get_unchecked_mut(item.1) };
-                    monkey.inspections += 1;
+                    inspections[item.1] += 1;
                     item.0 = match monkey.op {
                         Op::Add(v) => item.0 + v,
                         Op::Mul(v) => item.0 * v,
@@ -124,16 +123,14 @@ impl AdventSolver for DayEleven {
                 }
             }
         }
-        let mut inspections = monkeys.iter().map(|m| m.inspections).collect::<Vec<u64>>();
         inspections.sort_unstable();
         inspections.reverse();
         (inspections[0] * inspections[1]).into()
     }
 
     fn part_two(&self, input: &str) -> Solution {
+        const MODULO: u64 = 13 * 3 * 7 * 2 * 19 * 5 * 11 * 17;
         let (monkeys, items) = collect_monkeys(input);
-        let modulo: u64 = monkeys.iter().map(|m| m.diviser).product();
-        let monkeys = Arc::new(monkeys);
         let handles = items
             .into_iter()
             .map(|mut i| {
@@ -144,12 +141,15 @@ impl AdventSolver for DayEleven {
                     while round < 10_000 {
                         let monkey = unsafe { monkeys.get_unchecked(i.1) };
                         *unsafe { inspections.get_unchecked_mut(i.1) } += 1;
-                        i.0 = match monkey.op {
-                            Op::Add(v) => i.0 + v,
-                            Op::Mul(v) => i.0 * v,
-                            Op::Square => i.0 * i.0,
+                        i.0 = unsafe {
+                            match monkey.op {
+                                Op::Add(v) => i.0.unchecked_add(v),
+                                Op::Mul(v) => i.0.unchecked_mul(v),
+                                Op::Square => i.0.unchecked_mul(i.0),
+                            }
                         };
-                        i.0 %= modulo;
+
+                        i.0 %= MODULO;
                         i.1 = if i.0 % monkey.diviser == 0 {
                             if i.1 > monkey.if_true {
                                 round += 1;

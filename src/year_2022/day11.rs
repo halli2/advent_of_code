@@ -1,5 +1,3 @@
-use std::thread;
-
 use arrayvec::ArrayVec;
 
 use crate::prelude::*;
@@ -95,6 +93,7 @@ fn collect_monkeys(input: &str) -> (ArrayVec<Monkey, 8>, ArrayVec<(u64, usize), 
     }
     (monkeys, items)
 }
+
 impl AdventSolver for DayEleven {
     fn part_one(&self, input: &str) -> Solution {
         let (mut monkeys, mut items) = collect_monkeys(input);
@@ -130,50 +129,66 @@ impl AdventSolver for DayEleven {
 
     fn part_two(&self, input: &str) -> Solution {
         const MODULO: u64 = 13 * 3 * 7 * 2 * 19 * 5 * 11 * 17;
-        let (monkeys, items) = collect_monkeys(input);
-        let handles = items
-            .into_iter()
-            .map(|mut i| {
-                let monkeys = monkeys.clone();
-                thread::spawn(move || -> [u64; 8] {
-                    let mut inspections = [0_u64; 8];
-                    let mut round = 0;
-                    while round < 10_000 {
-                        let monkey = unsafe { monkeys.get_unchecked(i.1) };
-                        *unsafe { inspections.get_unchecked_mut(i.1) } += 1;
-                        i.0 = unsafe {
-                            match monkey.op {
-                                Op::Add(v) => i.0.unchecked_add(v),
-                                Op::Mul(v) => i.0.unchecked_mul(v),
-                                Op::Square => i.0.unchecked_mul(i.0),
-                            }
-                        };
-
-                        i.0 %= MODULO;
-                        i.1 = if i.0 % monkey.diviser == 0 {
-                            if i.1 > monkey.if_true {
-                                round += 1;
-                            }
-                            monkey.if_true
-                        } else {
-                            if i.1 > monkey.if_false {
-                                round += 1;
-                            }
-                            monkey.if_false
-                        };
-                    }
-                    inspections
-                })
-            })
-            .collect::<Vec<_>>();
-
+        let (monkeys, mut items) = collect_monkeys(input);
         let mut inspections = [0_u64; 8];
-        for handle in handles {
-            let handle_res = handle.join().unwrap();
-            for i in 0..8 {
-                inspections[i] += handle_res[i];
+        let f = |item: &mut (u64, usize), round: &mut usize, inspections: &mut [u64; 8]| {
+            let monkey = unsafe { monkeys.get_unchecked(item.1) };
+            *unsafe { inspections.get_unchecked_mut(item.1) } += 1;
+            item.0 = unsafe {
+                match monkey.op {
+                    Op::Add(v) => item.0.unchecked_add(v),
+                    Op::Mul(v) => item.0.unchecked_mul(v),
+                    Op::Square => item.0.unchecked_mul(item.0),
+                }
+            };
+
+            item.0 %= MODULO;
+            item.1 = if item.0 % monkey.diviser == 0 {
+                if item.1 > monkey.if_true {
+                    *round += 1;
+                }
+                monkey.if_true
+            } else {
+                if item.1 > monkey.if_false {
+                    *round += 1;
+                }
+                monkey.if_false
+            };
+        };
+        for item in &mut items {
+            let mut checkpoint = *item;
+            let mut distance = 1;
+            let mut cycle = 1;
+            let mut round = 0;
+            while round < 10_000 {
+                for _ in 0..distance {
+                    cycle += 1;
+                    f(item, &mut round, &mut inspections);
+                    if checkpoint == *item {
+                        let mut cycle_inspections = [0_u64; 8];
+                        let mut cycle_round = 0;
+                        for _ in 0..cycle {
+                            f(item, &mut cycle_round, &mut cycle_inspections);
+                        }
+                        let amount = (10_000 - round) / cycle_round;
+                        for i in 0..inspections.len() {
+                            inspections[i] += cycle_inspections[i] * amount as u64;
+                        }
+                        round += amount * cycle_round;
+                        while round < 10_000 {
+                            f(item, &mut round, &mut inspections);
+                        }
+                    }
+                    if round == 10_000 {
+                        break;
+                    }
+                }
+                cycle = 0;
+                distance *= 2;
+                checkpoint = *item;
             }
         }
+
         inspections.sort_unstable();
         inspections.reverse();
         (inspections[0] * inspections[1]).into()

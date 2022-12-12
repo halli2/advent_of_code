@@ -129,6 +129,7 @@ impl AdventSolver for DayEleven {
 
     fn part_two(&self, input: &str) -> Solution {
         const MODULO: u64 = 13 * 3 * 7 * 2 * 19 * 5 * 11 * 17;
+        const ROUNDS: usize = 10_000;
         let (monkeys, mut items) = collect_monkeys(input);
         let mut inspections = [0_u64; 8];
         let f = |item: &mut (u64, usize), round: &mut usize, inspections: &mut [u64; 8]| {
@@ -160,7 +161,7 @@ impl AdventSolver for DayEleven {
             let mut distance = 1;
             let mut cycle = 1;
             let mut round = 0;
-            while round < 10_000 {
+            while round < ROUNDS {
                 for _ in 0..distance {
                     cycle += 1;
                     f(item, &mut round, &mut inspections);
@@ -170,16 +171,16 @@ impl AdventSolver for DayEleven {
                         for _ in 0..cycle {
                             f(item, &mut cycle_round, &mut cycle_inspections);
                         }
-                        let amount = (10_000 - round) / cycle_round;
+                        let amount = (ROUNDS - round) / cycle_round;
                         for i in 0..inspections.len() {
                             inspections[i] += cycle_inspections[i] * amount as u64;
                         }
                         round += amount * cycle_round;
-                        while round < 10_000 {
+                        while round < ROUNDS {
                             f(item, &mut round, &mut inspections);
                         }
                     }
-                    if round == 10_000 {
+                    if round == ROUNDS {
                         break;
                     }
                 }

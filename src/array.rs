@@ -4,7 +4,7 @@ use std::ops::{Index, IndexMut};
 
 pub struct Vec2D<T> {
     pub inner: Vec<T>,
-    stride: usize,
+    pub stride: usize,
 }
 
 pub trait FastIndex<Idx: ?Sized> {
@@ -14,7 +14,7 @@ pub trait FastIndex<Idx: ?Sized> {
 
 pub struct Array2D<const N: usize, T> {
     pub inner: [T; N],
-    stride: usize,
+    pub stride: usize,
 }
 
 impl<const N: usize, T> Array2D<N, T> {

@@ -96,12 +96,12 @@ fn collect_monkeys(input: &str) -> (ArrayVec<Monkey, 8>, ArrayVec<(u64, usize), 
 
 impl AdventSolver for DayEleven {
     fn part_one(&self, input: &str) -> Solution {
-        let (mut monkeys, mut items) = collect_monkeys(input);
+        let (monkeys, mut items) = collect_monkeys(input);
         let mut inspections = [0_u64; 8];
         for _ in 0..20 {
             for item in &mut items {
                 loop {
-                    let monkey = unsafe { monkeys.get_unchecked_mut(item.1) };
+                    let monkey = unsafe { monkeys.get_unchecked(item.1) };
                     inspections[item.1] += 1;
                     item.0 = match monkey.op {
                         Op::Add(v) => item.0 + v,
@@ -135,12 +135,10 @@ impl AdventSolver for DayEleven {
         let f = |item: &mut (u64, usize), round: &mut usize, inspections: &mut [u64; 8]| {
             let monkey = unsafe { monkeys.get_unchecked(item.1) };
             *unsafe { inspections.get_unchecked_mut(item.1) } += 1;
-            item.0 = unsafe {
-                match monkey.op {
-                    Op::Add(v) => item.0.unchecked_add(v),
-                    Op::Mul(v) => item.0.unchecked_mul(v),
-                    Op::Square => item.0.unchecked_mul(item.0),
-                }
+            item.0 = match monkey.op {
+                Op::Add(v) => item.0 + v,
+                Op::Mul(v) => item.0 * v,
+                Op::Square => item.0 * item.0,
             };
 
             item.0 %= MODULO;
@@ -158,11 +156,11 @@ impl AdventSolver for DayEleven {
         };
         for item in &mut items {
             let mut checkpoint = *item;
-            let mut distance = 1;
-            let mut cycle = 1;
+            let mut cycle_length = 1;
+            let mut cycle = 0;
             let mut round = 0;
             while round < ROUNDS {
-                for _ in 0..distance {
+                for _ in 0..cycle_length {
                     cycle += 1;
                     f(item, &mut round, &mut inspections);
                     if checkpoint == *item {
@@ -185,7 +183,7 @@ impl AdventSolver for DayEleven {
                     }
                 }
                 cycle = 0;
-                distance *= 2;
+                cycle_length *= 2;
                 checkpoint = *item;
             }
         }
